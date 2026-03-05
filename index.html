@@ -19,37 +19,26 @@
             padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
         }
 
-        /* SPLASH SCREEN: ΕΠΙΣΤΡΟΦΗ ΣΤΗ ΜΕΘΟΔΟ IMG ΠΟΥ ΔΟΥΛΕΥΕ */
+        /* ΕΝΙΣΧΥΜΕΝΟ SPLASH SCREEN */
         #splash-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #0a0a0a; display: flex; align-items: center; justify-content: center; 
-            z-index: 999999; transition: opacity 0.5s ease-out; pointer-events: none;
+            z-index: 999999; transition: opacity 0.8s ease; pointer-events: none;
         }
-        #splash-icon { width: 150px; height: 150px; object-fit: contain; }
+        #splash-icon { width: 160px; height: 160px; object-fit: contain; }
 
         #dim-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 90000; display: none; }
 
-        #prayer-area { width: 100%; text-align: center; padding-top: 40px; flex-shrink: 0; min-height: 110px; cursor: pointer; }
+        #prayer-area { width: 100%; text-align: center; padding-top: 40px; flex-shrink: 0; min-height: 110px; }
         #prayer-text { font-size: 1.6rem; line-height: 1.3; min-height: 4.5rem; display: flex; align-items: center; justify-content: center; padding: 0 20px; color: #d4af37; font-weight: 500; }
-
-        .panel { 
-            position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%; 
-            background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(20px);
-            border-top: 2px solid #d4af37; border-radius: 30px 30px 0 0;
-            z-index: 10000; transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 30px 20px; overflow-y: auto;
-        }
-        .panel.open { bottom: 0; }
-        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 15px; }
-        .close-panel { font-size: 1.5rem; cursor: pointer; color: #d4af37; }
 
         #main-area { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; }
         
         #bead-container { 
-            width: 58vw; height: 58vw; max-width: 210px; max-height: 210px; border-radius: 50%; 
+            width: 60vw; height: 60vw; max-width: 220px; max-height: 220px; border-radius: 50%; 
             background: radial-gradient(circle, #252525 0%, #000 100%); border: 4px solid #d4af37; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            box-shadow: 0 15px 45px rgba(0,0,0,0.9); transition: transform 0.05s;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.9); transition: transform 0.05s; cursor: pointer;
         }
         #bead-container:active { transform: scale(0.95); }
         #current-count { font-size: 3.8rem; font-weight: bold; line-height: 1; margin: 0; }
@@ -57,28 +46,28 @@
         .nav-btn { background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; color: #d4af37; padding: 10px 18px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; }
         input, select { background: #1a1a1a; color: #fff; border: 1px solid #d4af37; padding: 15px; border-radius: 12px; width: 100%; margin-bottom: 15px; font-family: inherit; font-size: 1rem; outline: none; }
         
-        .vib-option { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; cursor: pointer; padding: 5px 0; }
-        .vib-option input { width: 22px; height: 22px; margin: 0; cursor: pointer; }
-
         .info-bar { width: 100%; max-width: 380px; display: flex; justify-content: space-around; align-items: center; padding: 12px 0; border-top: 1px solid rgba(212, 175, 55, 0.1); font-size: 0.7rem; }
         .info-value { display: block; font-weight: bold; font-size: 0.95rem; color: #fff; margin-top: 4px; }
 
-        .timer-container { display: flex; align-items: center; gap: 8px; justify-content: center; }
-        #pause-btn { background: none; border: none; color: #d4af37; font-size: 1.2rem; cursor: pointer; padding: 0; }
+        /* ΚΟΥΜΠΙ ΒΑΖΩ ΑΡΧΗ */
+        .reset-btn { background: transparent; border: 1px solid rgba(212,175,55,0.4); color: #d4af37; padding: 12px 30px; border-radius: 25px; font-size: 1rem; margin-top: 10px; font-weight: bold; cursor: pointer; }
+        .reset-btn:active { background: rgba(212,175,55,0.1); }
 
-        .reset-btn { background: transparent; border: 1px solid rgba(212,175,55,0.3); color: #d4af37; padding: 10px 25px; border-radius: 25px; font-size: 0.95rem; margin-top: 10px; font-weight: bold; cursor: pointer; }
+        .panel { position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%; background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(20px); border-top: 2px solid #d4af37; border-radius: 30px 30px 0 0; z-index: 10000; transition: bottom 0.4s ease; padding: 30px 20px; overflow-y: auto; }
+        .panel.open { bottom: 0; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
     </style>
 </head>
 <body>
 
     <div id="splash-screen">
-        <img src="icon.png" id="splash-icon">
+        <img src="icon.png" id="splash-icon" alt="">
     </div>
 
     <div id="dim-overlay"></div>
 
     <div id="prayer-area">
-        <div id="prayer-text">Φόρτωση...</div>
+        <div id="prayer-text"></div>
     </div>
 
     <div id="main-area">
@@ -86,47 +75,30 @@
             <span id="current-count">0</span>
         </div>
 
-        <div style="display:flex; gap:10px; margin-top:5px;">
+        <div style="display:flex; gap:10px;">
             <button class="nav-btn" onclick="togglePanel('settings-panel')">⚙ ΚΑΝΟΝΑΣ</button>
-            <button class="nav-btn" onclick="togglePanel('prayers-panel')">📖 ΠΡΟΣΕΥΧΕΣ</button>
-            <button class="nav-btn" style="background:#000; font-size:1.2rem; padding:5px 15px;" onclick="setDim(true)">🌙</button>
+            <button class="nav-btn" onclick="setDim(true)">🌙 ΝΥΧΤΑ</button>
         </div>
 
         <div class="info-bar">
             <div style="text-align:center;">ΣΥΝΟΛΟ <span id="total" class="info-value">0</span></div>
             <div style="text-align:center;">ΚΥΚΛΟΙ <span id="cycles" class="info-value">0</span></div>
-            <div style="text-align:center;">
-                ΧΡΟΝΟΣ 
-                <div class="timer-container">
-                    <span id="session-timer" class="info-value" style="margin:0;">00:00:00</span>
-                    <button id="pause-btn" onclick="toggleTimer(event)">⏸</button>
-                </div>
-            </div>
+            <div style="text-align:center;">ΧΡΟΝΟΣ <span id="session-timer" class="info-value">00:00:00</span></div>
         </div>
         
         <button class="reset-btn" onclick="resetAll()">ΒΑΖΩ ΑΡΧΗ</button>
     </div>
 
     <div id="settings-panel" class="panel">
-        <div class="panel-header"><h3>Κανόνας</h3><span class="close-panel" onclick="togglePanel('settings-panel')">✕</span></div>
-        <label>Τρόπος Προσευχής</label>
+        <div class="panel-header"><h3>Ρυθμίσεις Κανόνα</h3><span style="cursor:pointer;font-size:1.5rem;" onclick="togglePanel('settings-panel')">✕</span></div>
+        <label>Επιλογή Κόμπων</label>
         <select id="knot-select" onchange="updateSettings()">
             <option value="33">33 κόμποι</option>
             <option value="100">100 κόμποι</option>
             <option value="300">300 κόμποι</option>
-            <option value="custom">Επιλογή κόμπων...</option>
-            <option value="free">Νά 'ναι εὐλογημένο</option>
+            <option value="custom">Επιλογή...</option>
         </select>
-        <input type="number" id="custom-input" style="display:none;" placeholder="Εἰσάγετε ἀριθμό..." oninput="updateSettings()">
-        
-        <label style="display:block; margin: 20px 0 10px;">Δόνηση</label>
-        <label class="vib-option"><input type="checkbox" id="vib-on" onchange="saveVib('on')"> <span>Σὲ κάθε κόμπο</span></label>
-        <label class="vib-option"><input type="checkbox" id="vib-off" onchange="saveVib('off')"> <span>Μόνο στον τερματισμό</span></label>
-    </div>
-
-    <div id="prayers-panel" class="panel">
-        <div class="panel-header"><h3>Προσευχές</h3><span class="close-panel" onclick="togglePanel('prayers-panel')">✕</span></div>
-        <div id="prayers-list-edit"></div>
+        <input type="number" id="custom-input" style="display:none;" placeholder="Αριθμός..." oninput="updateSettings()">
     </div>
 
     <script>
@@ -134,34 +106,31 @@
         let total = parseInt(localStorage.getItem('total')) || 0;
         let cycles = parseInt(localStorage.getItem('cycles')) || 0;
         let target = parseInt(localStorage.getItem('target')) || 33;
-        let targetType = localStorage.getItem('targetType') || 'knots';
         
-        const prayers = ["Κύριε Ἰησοῦ Χριστέ,<br>ἐλέησόν με", "Ὑπεραγία Θεοτόκε,<br>σῶσον ἡμᾶς", "Ἅγιε τοῦ Θεοῦ,<br>πρέσβευε ὑπὲρ ἡμῶν"];
-        let pIndex = 0;
+        const prayers = ["Κύριε Ἰησοῦ Χριστέ, ἐλέησόν με", "Ὑπεραγία Θεοτόκε, σῶσον ἡμᾶς"];
         let isPaused = true, startTime = null, elapsedAtPause = 0, timerInterval;
 
-        function saveState() {
+        function save() {
             localStorage.setItem('count', count);
             localStorage.setItem('total', total);
             localStorage.setItem('cycles', cycles);
             localStorage.setItem('target', target);
-            localStorage.setItem('targetType', targetType);
         }
 
         function countBead() {
             if(isPaused) startTimer();
             count++; total++;
-            if(targetType === 'knots' && target > 0 && count >= target) {
+            if(count >= target) {
                 cycles++; count = 0;
-                navigator.vibrate([300, 100, 300]);
-            } else if(localStorage.getItem('vib_on') === 'true') {
-                navigator.vibrate(50);
+                navigator.vibrate([200, 100, 200]);
+            } else {
+                navigator.vibrate(40);
             }
-            saveState(); updateUI();
+            save(); updateUI();
         }
 
         function updateUI() {
-            document.getElementById('current-count').innerText = (targetType === 'knots' && target > 0) ? (target - count) : total;
+            document.getElementById('current-count').innerText = target - count;
             document.getElementById('total').innerText = total;
             document.getElementById('cycles').innerText = cycles;
         }
@@ -169,7 +138,6 @@
         function startTimer() {
             if(!isPaused) return; isPaused = false;
             startTime = Date.now();
-            document.getElementById('pause-btn').innerText = "⏸";
             timerInterval = setInterval(() => {
                 let ms = elapsedAtPause + (Date.now() - startTime);
                 let s = Math.floor(ms / 1000);
@@ -178,62 +146,42 @@
             }, 1000);
         }
 
-        function pauseTimer() {
-            if(isPaused) return; isPaused = true;
-            elapsedAtPause += Date.now() - startTime;
-            clearInterval(timerInterval);
-            document.getElementById('pause-btn').innerText = "▶";
+        // Η ΣΥΝΑΡΤΗΣΗ ΠΟΥ ΔΕΝ ΡΩΤΑΕΙ
+        function resetAll() {
+            count = 0;
+            total = 0;
+            cycles = 0;
+            elapsedAtPause = 0;
+            if(timerInterval) clearInterval(timerInterval);
+            isPaused = true;
+            document.getElementById('session-timer').innerText = "00:00:00";
+            save();
+            updateUI();
         }
-
-        function toggleTimer(e) { e.stopPropagation(); isPaused ? startTimer() : pauseTimer(); }
 
         function updateSettings() {
             const s = document.getElementById('knot-select'), ci = document.getElementById('custom-input');
-            targetType = 'knots';
-            if(s.value === 'free') { target = 0; ci.style.display = 'none'; }
-            else if(s.value === 'custom') { ci.style.display = 'block'; target = parseInt(ci.value) || 33; }
+            if(s.value === 'custom') { ci.style.display = 'block'; target = parseInt(ci.value) || 33; }
             else { ci.style.display = 'none'; target = parseInt(s.value); }
-            count = 0; saveState(); updateUI();
+            count = 0; save(); updateUI();
         }
 
-        function saveVib(type) {
-            const vOn = document.getElementById('vib-on'), vOff = document.getElementById('vib-off');
-            if(type === 'on' && vOn.checked) vOff.checked = false;
-            if(type === 'off' && vOff.checked) vOn.checked = false;
-            localStorage.setItem('vib_on', vOn.checked);
-            localStorage.setItem('vib_off', vOff.checked);
+        function setDim(show) { 
+            document.getElementById('dim-overlay').style.display = show ? 'block' : 'none'; 
         }
 
-        // ΔΙΟΡΘΩΜΕΝΟ RESET: ΧΩΡΙΣ ΕΡΩΤΗΣΗ, ΕΠΑΝΑΦΟΡΑ ΣΤΟΝ ΣΤΟΧΟ
-        function resetAll() {
-            count = 0; 
-            total = 0; 
-            cycles = 0; 
-            elapsedAtPause = 0;
-            pauseTimer();
-            document.getElementById('session-timer').innerText = "00:00:00";
-            saveState();
-            updateUI();
-        }
-
-        function setDim(show) { document.getElementById('dim-overlay').style.display = show ? 'block' : 'none'; if(show) startTimer(); }
+        document.getElementById('dim-overlay').onclick = () => setDim(false);
 
         window.onload = () => {
-            // Το splash screen φεύγει μετά από 1.5 δευτερόλεπτο για να προλάβει να φανεί η εικόνα
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 500);
-            }, 1500);
-
             document.getElementById('prayer-text').innerHTML = prayers[0];
-            document.getElementById('vib-on').checked = localStorage.getItem('vib_on') === 'true';
-            document.getElementById('vib-off').checked = localStorage.getItem('vib_off') === 'true';
-            
-            let ks = document.getElementById('knot-select'), ci = document.getElementById('custom-input');
-            if(target === 0) ks.value = 'free';
-            else if([33, 100, 300].includes(target)) ks.value = target;
-            else { ks.value = 'custom'; ci.style.display = 'block'; ci.value = target; }
             updateUI();
+            
+            // Διαχείριση Splash Screen
+            const splash = document.getElementById('splash-screen');
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                setTimeout(() => splash.style.display = 'none', 800);
+            }, 2000);
         };
 
         function togglePanel(id) { document.getElementById(id).classList.toggle('open'); }
