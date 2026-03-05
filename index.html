@@ -27,7 +27,7 @@
 
         #dim-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9000; display: none; }
 
-        #prayer-text { font-size: 1.6rem; text-align: center; padding: 15px 0; flex-shrink: 0; line-height: 1.2; }
+        #prayer-text { font-size: 1.6rem; text-align: center; padding: 10px 0; flex-shrink: 0; line-height: 1.2; }
 
         /* Dropdown Ρυθμίσεις */
         .settings-container { 
@@ -41,18 +41,18 @@
         }
 
         #settings-content { max-height: 0; overflow-y: auto; transition: max-height 0.3s ease-out; }
-        #settings-content.open { max-height: 60vh; padding: 15px; }
+        #settings-content.open { max-height: 65vh; padding: 15px; }
 
         select, input[type="number"], input[type="time"] { 
             background: #1a1a1a; color: #d4af37; border: 1px solid #d4af37; padding: 8px; 
-            border-radius: 8px; width: 100%; margin-bottom: 8px; text-align: center; font-size: 16px;
+            border-radius: 8px; width: 100%; margin-bottom: 8px; text-align: center; font-size: 16px; font-family: inherit;
         }
 
         .options-group { width: 100%; border-bottom: 1px solid rgba(212,175,55,0.1); padding-bottom: 8px; margin-bottom: 8px; }
         .option-label { font-size: 0.7rem; text-transform: uppercase; opacity: 0.6; display: block; margin-bottom: 5px; text-align: center; }
         .toggle { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.85rem; cursor: pointer; margin-bottom: 4px; }
+        input[type="checkbox"] { accent-color: #d4af37; transform: scale(1.1); }
 
-        /* Λίστα Υπενθυμίσεων */
         #reminders-list { list-style: none; padding: 0; margin: 5px 0; width: 100%; }
         .reminder-item { display: flex; justify-content: space-between; background: rgba(212,175,55,0.1); padding: 5px 10px; border-radius: 5px; margin-bottom: 3px; font-size: 0.8rem; }
         .del-btn { color: #ff4444; font-weight: bold; cursor: pointer; }
@@ -61,16 +61,17 @@
         #main-area { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; width: 100%; }
         
         #bead-container { 
-            width: 70vw; height: 70vw; max-width: 280px; max-height: 280px; border-radius: 50%; 
+            width: 65vw; height: 65vw; max-width: 260px; max-height: 260px; border-radius: 50%; 
             background: radial-gradient(circle, #1a1a1a 0%, #000 100%); border: 2px solid #d4af37; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             box-shadow: 0 10px 40px rgba(0,0,0,0.8); transition: transform 0.05s;
         }
-        #bead-container:active { transform: scale(0.95); }
-        #current-count { font-size: 3.5rem; font-weight: bold; }
+        #bead-container:active { transform: scale(0.95); border-color: #fff; }
+        #current-count { font-size: 3.5rem; font-weight: bold; line-height: 1; }
+        .goal-reached { border-color: #fff !important; box-shadow: 0 0 50px rgba(212, 175, 55, 0.4) !important; }
         
-        .reset-btn { background: transparent; border: 1px solid #d4af37; color: #d4af37; padding: 8px 20px; border-radius: 20px; cursor: pointer; margin-top: 10px; }
-        .dim-btn { background: #d4af37; color: #000; border: none; padding: 10px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 5px; }
+        .reset-btn { background: transparent; border: 1px solid #d4af37; color: #d4af37; padding: 8px 20px; border-radius: 20px; cursor: pointer; margin-top: 10px; font-size: 0.8rem; }
+        .dim-btn { background: #d4af37; color: #000; border: none; padding: 10px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 5px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -103,9 +104,15 @@
             </div>
 
             <div class="options-group">
-                <span class="option-label">Ήχος & Δόνηση</span>
-                <label class="toggle"><input type="checkbox" id="snd-on" onclick="onlyOne(this, 'snd')"> Ήχος σε κάθε κόμπο</label>
-                <label class="toggle"><input type="checkbox" id="vib-on" onclick="onlyOne(this, 'vib')"> Δόνηση σε κάθε κόμπο</label>
+                <span class="option-label">Ήχος</span>
+                <label class="toggle"><input type="checkbox" id="snd-on" onclick="onlyOne(this, 'snd')"> Σε κάθε κόμπο</label>
+                <label class="toggle"><input type="checkbox" id="snd-off" onclick="onlyOne(this, 'snd')"> Στον τερματισμό</label>
+            </div>
+
+            <div id="vibration-section" class="options-group">
+                <span class="option-label">Δόνηση</span>
+                <label class="toggle"><input type="checkbox" id="vib-on" onclick="onlyOne(this, 'vib')"> Σε κάθε κόμπο</label>
+                <label class="toggle"><input type="checkbox" id="vib-off" onclick="onlyOne(this, 'vib')"> Στον τερματισμό</label>
             </div>
 
             <button class="dim-btn" onclick="toggleDim(true)">Χαμηλός Φωτισμός</button>
@@ -115,7 +122,7 @@
     <div id="main-area">
         <div id="bead-container" onclick="countBead()">
             <span id="current-count">33</span>
-            <span id="target-label" style="font-size:0.7rem; opacity:0.6">ΥΠΟΛΟΙΠΟ</span>
+            <span id="target-label" style="font-size:0.7rem; opacity:0.6; margin-top:5px;">ΥΠΟΛΟΙΠΟ</span>
         </div>
         
         <div style="text-align:center;">
@@ -131,7 +138,9 @@
         let reminders = JSON.parse(localStorage.getItem('prayer_reminders') || '[]');
         const beadSound = document.getElementById('bead-sound');
 
-        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) document.getElementById('vib-on').parentElement.style.display = 'none';
+        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            document.getElementById('vibration-section').style.display = 'none';
+        }
 
         function toggleSettings() {
             const content = document.getElementById('settings-content');
@@ -139,55 +148,62 @@
             document.getElementById('arrow').innerText = content.classList.contains('open') ? '▲' : '▼';
         }
 
-        function addReminder() {
-            const time = document.getElementById('reminder-time').value;
-            if (!time) return;
-            if (!reminders.includes(time)) {
-                reminders.push(time);
-                reminders.sort();
-                saveReminders();
-                renderReminders();
-                Notification.requestPermission();
-            }
-        }
-
-        function saveReminders() { localStorage.setItem('prayer_reminders', JSON.stringify(reminders)); }
-        function renderReminders() {
-            const list = document.getElementById('reminders-list');
-            list.innerHTML = reminders.map((t, i) => `<li class="reminder-item"><span>${t}</span><span class="del-btn" onclick="removeReminder(${i})">✕</span></li>`).join('');
-        }
-
-        function removeReminder(i) { reminders.splice(i, 1); saveReminders(); renderReminders(); }
-
         function onlyOne(checkbox, group) {
-            if(group === 'snd') document.querySelectorAll('[id^="snd-"]').forEach(c => { if(c!==checkbox) c.checked=false; });
-            if(group === 'vib') document.querySelectorAll('[id^="vib-"]').forEach(c => { if(c!==checkbox) c.checked=false; });
+            const list = group === 'snd' ? ['snd-on', 'snd-off'] : ['vib-on', 'vib-off'];
+            list.forEach(id => { if(document.getElementById(id) !== checkbox) document.getElementById(id).checked = false; });
         }
+
+        function playSnd() { beadSound.currentTime = 0; beadSound.play().catch(()=>{}); }
 
         function countBead() {
-            if (document.getElementById('snd-on').checked) { beadSound.currentTime = 0; beadSound.play().catch(()=>{}); }
-            if (document.getElementById('vib-on').checked && navigator.vibrate) navigator.vibrate(60);
+            const sOn = document.getElementById('snd-on').checked;
+            const sOff = document.getElementById('snd-off').checked;
+            const vOn = document.getElementById('vib-on').checked;
+            const vOff = document.getElementById('vib-off').checked;
 
             if (mode === 'timer' && !timerInterval && timerSeconds > 0) {
-                timerInterval = setInterval(() => { timerSeconds--; if (timerSeconds <= 0) { clearInterval(timerInterval); } updateUI(); }, 1000);
+                timerInterval = setInterval(() => { timerSeconds--; if (timerSeconds <= 0) { clearInterval(timerInterval); finish(); } updateUI(); }, 1000);
             }
 
             total++;
             if (mode === 'knots') {
                 count++;
-                if (target > 0 && count >= target) { count = 0; if(navigator.vibrate) navigator.vibrate([400, 200, 400]); }
+                if (target > 0 && count === target) {
+                    if (sOn || sOff) playSnd();
+                    if (navigator.vibrate && (vOn || vOff)) navigator.vibrate([400, 200, 400]);
+                    document.getElementById('bead-container').classList.add('goal-reached');
+                } else {
+                    if (sOn) playSnd();
+                    if (navigator.vibrate && vOn) navigator.vibrate(60);
+                }
+                if (target > 0 && count > target) { count = 1; document.getElementById('bead-container').classList.remove('goal-reached'); }
+            } else {
+                if (sOn) playSnd();
+                if (navigator.vibrate && vOn) navigator.vibrate(60);
             }
             updateUI();
         }
 
-        function resetAll() { total = 0; count = 0; clearInterval(timerInterval); timerInterval = null; updateUI(); }
-        
+        function finish() {
+            if (document.getElementById('snd-on').checked || document.getElementById('snd-off').checked) playSnd();
+            if (navigator.vibrate && (document.getElementById('vib-on').checked || document.getElementById('vib-off').checked)) navigator.vibrate([400, 200, 400]);
+            document.getElementById('bead-container').classList.add('goal-reached');
+        }
+
         function updateUI() {
-            const d = document.getElementById('current-count');
-            d.innerText = (mode === 'knots') ? (target === 0 ? total : Math.max(0, target - count)) : `${Math.floor(timerSeconds/60)}:${(timerSeconds%60).toString().padStart(2,'0')}`;
+            const d = document.getElementById('current-count'), l = document.getElementById('target-label');
+            if (mode === 'knots') {
+                d.innerText = (target === 0) ? total : Math.max(0, target - count);
+                l.innerText = (target === 0) ? "ΣΥΝΟΛΟ" : "ΥΠΟΛΟΙΠΟ";
+            } else {
+                d.innerText = `${Math.floor(timerSeconds/60)}:${(timerSeconds%60).toString().padStart(2,'0')}`;
+                l.innerText = "ΧΡΟΝΟΣ";
+            }
             document.getElementById('total').innerText = total;
         }
 
+        function resetAll() { count = 0; total = 0; clearInterval(timerInterval); timerInterval = null; document.getElementById('bead-container').classList.remove('goal-reached'); updateUI(); }
+        
         function updateSettings() {
             const s = document.getElementById('knot-select'), c = document.getElementById('custom-input');
             mode = s.value === 'timer' ? 'timer' : 'knots';
@@ -197,15 +213,21 @@
             resetAll();
         }
 
-        function toggleDim(show) { document.getElementById('dim-overlay').style.display = show ? 'block' : 'none'; }
-        function handleSwipe(e) { if (Math.abs(touchStartY - e.touches[0].clientY) > 60) toggleDim(false); }
-        
-        window.addEventListener('load', () => {
-            renderReminders();
-            setTimeout(() => { document.getElementById('splash-screen').style.opacity = '0'; setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 800); }, 2000);
-        });
+        // Reminders Logic
+        function addReminder() {
+            const time = document.getElementById('reminder-time').value;
+            if (time && !reminders.includes(time)) { reminders.push(time); reminders.sort(); saveRem(); renderRem(); Notification.requestPermission(); }
+        }
+        function saveRem() { localStorage.setItem('prayer_reminders', JSON.stringify(reminders)); }
+        function renderRem() {
+            document.getElementById('reminders-list').innerHTML = reminders.map((t, i) => `<li class="reminder-item"><span>${t}</span><span class="del-btn" onclick="remRem(${i})">✕</span></li>`).join('');
+        }
+        function remRem(i) { reminders.splice(i, 1); saveRem(); renderRem(); }
 
+        function toggleDim(show) { document.getElementById('dim-overlay').style.display = show ? 'block' : 'none'; }
+        window.addEventListener('load', () => { renderRem(); setTimeout(() => { document.getElementById('splash-screen').style.opacity='0'; setTimeout(()=>document.getElementById('splash-screen').style.display='none', 800); }, 1500); });
         document.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; beadSound.play().then(()=>beadSound.pause()).catch(()=>{}); }, {passive:true});
+        document.addEventListener('touchmove', (e) => { if (Math.abs(touchStartY - e.touches[0].clientY) > 60) toggleDim(false); }, {passive:true});
     </script>
 </body>
 </html>
