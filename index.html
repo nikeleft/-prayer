@@ -177,7 +177,6 @@
 
         function savePrayers() { localStorage.setItem('my_prayers', JSON.stringify(prayers)); }
         
-        // Νέα συνάρτηση αποθήκευσης δόνησης
         function saveVib(checkbox, group) {
             const list = ['vib-on', 'vib-off'];
             list.forEach(id => { if(document.getElementById(id) !== checkbox) document.getElementById(id).checked = false; });
@@ -262,6 +261,11 @@
             const s = document.getElementById('knot-select'), c = document.getElementById('custom-input');
             mode = (s.value === 'timer') ? 'timer' : 'knots';
             c.style.display = (s.value === 'custom' || s.value === 'timer') ? 'block' : 'none';
+            
+            // Αποθήκευση επιλογών
+            localStorage.setItem('last_rule', s.value);
+            localStorage.setItem('last_custom_val', c.value);
+
             if (mode === 'timer') { timerSeconds = (parseInt(c.value) || 0) * 60; } 
             else { target = s.value === 'free' ? 0 : (s.value === 'custom' ? parseInt(c.value)||0 : parseInt(s.value)); }
             resetAll();
@@ -271,9 +275,19 @@
 
         window.addEventListener('load', () => {
             updatePrayerDisplay();
+            
             // Φόρτωση ρυθμίσεων δόνησης
             document.getElementById('vib-on').checked = localStorage.getItem('vib_on') === 'true';
             document.getElementById('vib-off').checked = localStorage.getItem('vib_off') === 'true';
+
+            // Φόρτωση Κανόνα
+            const lastRule = localStorage.getItem('last_rule');
+            const lastCustomVal = localStorage.getItem('last_custom_val');
+            if (lastRule) {
+                document.getElementById('knot-select').value = lastRule;
+                if (lastCustomVal) document.getElementById('custom-input').value = lastCustomVal;
+                updateSettings();
+            }
             
             setTimeout(() => { document.getElementById('splash-screen').style.opacity = '0'; setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 800); }, 2500);
         });
