@@ -80,6 +80,7 @@
         #bead-container:active { transform: scale(0.96); border-color: #fff; }
         #current-count { font-size: 3.5rem; font-weight: bold; line-height: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
 
+        .info-bar { font-size: 0.8rem; opacity: 0.7; text-align: center; display: flex; gap: 15px; justify-content: center; align-items: center; margin-top: 10px; }
         .dim-btn { background: #d4af37; color: #000; border: none; padding: 12px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 0.85rem; text-transform: uppercase; margin-top: 5px; }
         .reset-btn { background: transparent; border: 1px solid rgba(212,175,55,0.4); color: #d4af37; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-size: 0.7rem; margin-top: 10px; opacity: 0.7; }
     </style>
@@ -112,7 +113,7 @@
             <div class="section-box">
                 <span class="option-label">Δόνηση</span>
                 <label class="toggle-row"><input type="checkbox" id="vib-on" onclick="saveVib(this,'vib')"> Σε κάθε κόμπο</label>
-                <label class="toggle-row"><input type="checkbox" id="vib-off" onclick="saveVib(this,'vib')"> Μόνο στον τερματισμό</label>
+                <label class="toggle-row"><input type="checkbox" id="vib-off" onclick="onlyOne(this,'vib')"> Μόνο στον τερματισμό</label>
             </div>
 
             <div class="section-box" style="border-bottom:none;">
@@ -133,8 +134,14 @@
             <span id="label-text" style="font-size:0.7rem; opacity:0.6; margin-top:5px; letter-spacing: 1px;">ΥΠΟΛΟΙΠΟ</span>
         </div>
         <button class="dim-btn" onclick="setDim(true)">Σκοτεινή Οθόνη</button>
+        
+        <div class="info-bar">
+            <div>ΣΥΝΟΛΟ: <span id="total">0</span></div>
+            <div>ΚΥΚΛΟΙ: <span id="cycles">0</span></div>
+            <div>ΧΡΟΝΟΣ: <span id="session-timer">00:00:00</span></div>
+        </div>
+        
         <div style="text-align:center;">
-            <div style="font-size:0.8rem; opacity:0.6;">ΣΥΝΟΛΟ: <span id="total">0</span> | ΚΥΚΛΟΙ: <span id="cycles">0</span></div>
             <button class="reset-btn" onclick="resetAll()">ΜΗΔΕΝΙΣΜΟΣ</button>
         </div>
     </div>
@@ -147,6 +154,10 @@
         let count = 0, total = 0, target = 33, mode = 'knots', timerSeconds = 0, timerInterval = null, cycles = 0;
         let pIndex = 0, touchStartX = 0, touchStartY = 0;
         
+        // Session Timer Variables
+        let startTime = null;
+        let sessionInterval = null;
+
         const defaultPrayers = ["Κύριε Ἰησοῦ Χριστέ,<br>ἐλέησόν με", "Ὑπεραγία Θεοτόκε,<br>σῶσον ἡμᾶς", "Ἅγιε τοῦ Θεοῦ,<br>πρέσβευε ὑπὲρ ἡμῶν"];
         let prayers = JSON.parse(localStorage.getItem('my_prayers')) || [...defaultPrayers];
 
@@ -186,6 +197,29 @@
 
         function setDim(show) { document.getElementById('dim-overlay').style.display = show ? 'block' : 'none'; }
 
+        // Session Timer Logic
+        function startSessionTimer() {
+            if (!startTime) {
+                startTime = Date.now();
+                localStorage.setItem('session_start', startTime);
+            }
+            if (!sessionInterval) {
+                sessionInterval = setInterval(updateSessionUI, 1000);
+            }
+        }
+
+        function updateSessionUI() {
+            if (!startTime) return;
+            const now = Date.now();
+            const diff = Math.floor((now - startTime) / 1000);
+            
+            const h = Math.floor(diff / 3600).toString().padStart(2, '0');
+            const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+            const s = (diff % 60).toString().padStart(2, '0');
+            
+            document.getElementById('session-timer').innerText = `${h}:${m}:${s}`;
+        }
+
         document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, {passive: true});
         document.addEventListener('touchend', e => {
             let diffX = e.changedTouches[0].screenX - touchStartX;
@@ -212,6 +246,7 @@
         }
 
         function countBead() {
+            startSessionTimer(); // Ξεκινάει το χρονόμετρο με το πρώτο πάτημα
             const vOn = document.getElementById('vib-on').checked, vOff = document.getElementById('vib-off').checked;
 
             if (mode === 'timer' && !timerInterval && timerSeconds > 0) {
@@ -262,7 +297,6 @@
             mode = (s.value === 'timer') ? 'timer' : 'knots';
             c.style.display = (s.value === 'custom' || s.value === 'timer') ? 'block' : 'none';
             
-            // Αποθήκευση επιλογών
             localStorage.setItem('last_rule', s.value);
             localStorage.setItem('last_custom_val', c.value);
 
@@ -271,22 +305,34 @@
             resetAll();
         }
 
-        function resetAll() { count = 0; total = 0; cycles = 0; if(timerInterval) { clearInterval(timerInterval); timerInterval = null; } updateUI(); }
+        function resetAll() { 
+            count = 0; total = 0; cycles = 0; 
+            startTime = null; 
+            localStorage.removeItem('session_start');
+            if(sessionInterval) { clearInterval(sessionInterval); sessionInterval = null; }
+            document.getElementById('session-timer').innerText = "00:00:00";
+            if(timerInterval) { clearInterval(timerInterval); timerInterval = null; } 
+            updateUI(); 
+        }
 
         window.addEventListener('load', () => {
             updatePrayerDisplay();
-            
-            // Φόρτωση ρυθμίσεων δόνησης
             document.getElementById('vib-on').checked = localStorage.getItem('vib_on') === 'true';
             document.getElementById('vib-off').checked = localStorage.getItem('vib_off') === 'true';
 
-            // Φόρτωση Κανόνα
             const lastRule = localStorage.getItem('last_rule');
             const lastCustomVal = localStorage.getItem('last_custom_val');
             if (lastRule) {
                 document.getElementById('knot-select').value = lastRule;
                 if (lastCustomVal) document.getElementById('custom-input').value = lastCustomVal;
                 updateSettings();
+            }
+
+            // Ανάκτηση χρονομέτρου συνεδρίας αν υπήρχε
+            const savedStart = localStorage.getItem('session_start');
+            if (savedStart) {
+                startTime = parseInt(savedStart);
+                startSessionTimer();
             }
             
             setTimeout(() => { document.getElementById('splash-screen').style.opacity = '0'; setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 800); }, 2500);
