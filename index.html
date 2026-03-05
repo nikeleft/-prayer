@@ -17,7 +17,6 @@
             padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
         }
 
-        /* Splash Screen */
         #splash-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #0f0f0f; display: flex; align-items: center; justify-content: center; 
@@ -29,7 +28,7 @@
         #dim-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9000; display: none; }
 
         #prayer-area { width: 100%; text-align: center; padding-top: 55px; padding-bottom: 10px; flex-shrink: 0; }
-        #prayer-text { font-size: 1.6rem; line-height: 1.3; min-height: 5rem; display: flex; align-items: center; justify-content: center; padding: 0 10px; color: #d4af37; font-weight: normal; }
+        #prayer-text { font-size: 1.6rem; line-height: 1.3; min-height: 5rem; display: flex; align-items: center; justify-content: center; padding: 0 10px; color: #d4af37; }
 
         .settings-container { 
             width: 100%; max-width: 350px; margin: 5px auto 10px; border: 1px solid #d4af37; 
@@ -38,19 +37,18 @@
         }
         #settings-toggle { 
             width: 100%; padding: 14px; background: rgba(212, 175, 55, 0.2); color: #d4af37; 
-            border: none; font-weight: bold; cursor: pointer; font-size: 0.95rem; font-family: inherit; flex-shrink: 0;
+            border: none; font-weight: bold; cursor: pointer; font-size: 0.95rem; font-family: inherit;
         }
         
-        /* Optimized Unlimited Scroll Area */
         #settings-content { 
             max-height: 0; 
             overflow-y: auto; 
             transition: max-height 0.4s ease-in-out; 
-            -webkit-overflow-scrolling: touch; /* Smooth iOS scroll */
+            -webkit-overflow-scrolling: touch;
         }
         #settings-content.open { 
-            max-height: 75vh; /* Καταλαμβάνει το μεγαλύτερο μέρος της οθόνης */
-            padding: 20px 15px 80px 15px; /* Μεγάλο κενό στο τέλος για τις πολλές προσευχές */
+            max-height: 70vh; 
+            padding: 20px 15px 80px 15px; 
         }
 
         input[type="text"], select, input[type="number"] { 
@@ -92,7 +90,6 @@
     <div class="settings-container">
         <button id="settings-toggle" onclick="toggleSettings()">⚙ ΡΥΘΜΙΣΕΙΣ <span id="arrow">▼</span></button>
         <div id="settings-content">
-            
             <div class="section-box">
                 <span class="option-label">Κανόνας</span>
                 <select id="knot-select" onchange="updateSettings()">
@@ -117,11 +114,9 @@
                     <input type="text" id="new-prayer-input" placeholder="Κείμενο..." style="margin:0;">
                     <button onclick="addNewPrayer()" style="background:#d4af37; border:none; border-radius:8px; padding:0 20px; font-weight:bold; color:#000; font-size:1.3rem;">+</button>
                 </div>
-                
                 <span class="option-label" style="font-size:0.75rem; opacity:0.8; margin-bottom:15px;">Λίστα Προσευχών</span>
                 <div id="prayers-list-edit"></div>
             </div>
-
         </div>
     </div>
 
@@ -132,13 +127,13 @@
         </div>
         <button class="dim-btn" onclick="setDim(true)">Σκοτεινή Οθόνη</button>
         <div style="text-align:center;">
-            <div style="font-size:0.8rem; opacity:0.6;">ΣΥΝΟΛΟ: <span id="total">0</span></div>
+            <div style="font-size:0.8rem; opacity:0.6;">ΣΥΝΟΛΟ: <span id="total">0</span> | ΚΥΚΛΟΙ: <span id="cycles">0</span></div>
             <button class="reset-btn" onclick="resetAll()">ΜΗΔΕΝΙΣΜΟΣ</button>
         </div>
     </div>
 
     <script>
-        let count = 0, total = 0, target = 33, mode = 'knots', timerSeconds = 0, timerInterval = null;
+        let count = 0, total = 0, target = 33, mode = 'knots', timerSeconds = 0, timerInterval = null, cycles = 0;
         let pIndex = 0, touchStartX = 0, touchStartY = 0;
         
         const defaultPrayers = ["Κύριε Ἰησοῦ Χριστέ,<br>ἐλέησόν με", "Ὑπεραγία Θεοτόκε,<br>σῶσον ἡμᾶς", "Ἅγιε τοῦ Θεοῦ,<br>πρέσβευε ὑπὲρ ἡμῶν"];
@@ -192,13 +187,28 @@
             list.forEach(id => { if(document.getElementById(id) !== checkbox) document.getElementById(id).checked = false; });
         }
 
+        function multiVibrate(times) {
+            if (!navigator.vibrate) return;
+            let pattern = [];
+            for(let i=0; i<times; i++) {
+                pattern.push(400); // Δόνηση
+                if(i < times - 1) pattern.push(200); // Παύση ανάμεσα
+            }
+            navigator.vibrate(pattern);
+        }
+
         function countBead() {
             const vOn = document.getElementById('vib-on').checked, vOff = document.getElementById('vib-off').checked;
 
             if (mode === 'timer' && !timerInterval && timerSeconds > 0) {
                 timerInterval = setInterval(() => { 
                     timerSeconds--; 
-                    if (timerSeconds <= 0) { clearInterval(timerInterval); timerInterval = null; if (navigator.vibrate && (vOn || vOff)) navigator.vibrate([400, 200, 400]); } 
+                    if (timerSeconds <= 0) { 
+                        clearInterval(timerInterval); 
+                        timerInterval = null; 
+                        cycles++;
+                        if (vOn || vOff) multiVibrate(cycles); 
+                    } 
                     updateUI(); 
                 }, 1000);
             }
@@ -207,13 +217,14 @@
             if (mode === 'knots') {
                 count++;
                 if (target > 0 && count === target) {
-                    if (navigator.vibrate && (vOn || vOff)) navigator.vibrate([400, 200, 400]);
+                    cycles++;
+                    if (vOn || vOff) multiVibrate(cycles);
                     count = 0;
                 } else {
-                    if (navigator.vibrate && vOn) navigator.vibrate(60);
+                    if (vOn) navigator.vibrate(60);
                 }
             } else {
-                if (navigator.vibrate && vOn) navigator.vibrate(60);
+                if (vOn) navigator.vibrate(60);
             }
             updateUI();
         }
@@ -229,6 +240,7 @@
                 lbl.innerText = (target > 0) ? "ΥΠΟΛΟΙΠΟ" : "ΣΥΝΟΛΟ";
             }
             document.getElementById('total').innerText = total;
+            document.getElementById('cycles').innerText = cycles;
         }
 
         function updateSettings() {
@@ -240,7 +252,7 @@
             resetAll();
         }
 
-        function resetAll() { count = 0; total = 0; if(timerInterval) { clearInterval(timerInterval); timerInterval = null; } updateUI(); }
+        function resetAll() { count = 0; total = 0; cycles = 0; if(timerInterval) { clearInterval(timerInterval); timerInterval = null; } updateUI(); }
 
         window.addEventListener('load', () => {
             updatePrayerDisplay();
