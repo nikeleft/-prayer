@@ -23,18 +23,19 @@
             padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
         }
 
-        /* Splash Screen */
         #splash-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #0f0f0f; display: flex; align-items: center; justify-content: center; 
             z-index: 99999; transition: opacity 0.5s ease-out; pointer-events: none;
         }
-        #splash-screen img { width: 180px; height: 180px; border-radius: 40px; border: 1px solid #d4af37; box-shadow: 0 0 30px rgba(212,175,55,0.2); }
+        #splash-screen img { width: 180px; height: 180px; border-radius: 40px; border: 1px solid #d4af37; }
 
         #dim-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9000; display: none; }
 
-        #prayer-area { width: 100%; text-align: center; padding-top: 40px; padding-bottom: 5px; flex-shrink: 0; }
-        #prayer-text { font-size: 1.5rem; line-height: 1.3; min-height: 4.5rem; display: flex; align-items: center; justify-content: center; padding: 0 15px; color: #d4af37; font-style: italic; }
+        #prayer-area { width: 100%; text-align: center; padding-top: 40px; padding-bottom: 5px; flex-shrink: 0; min-height: 120px; }
+        
+        /* ΑΦΑΙΡΕΣΗ ITALIC ΕΔΩ */
+        #prayer-text { font-size: 1.5rem; line-height: 1.3; min-height: 4.5rem; display: flex; align-items: center; justify-content: center; padding: 0 15px; color: #d4af37; font-style: normal; font-weight: 500; }
 
         .settings-container { 
             width: 100%; max-width: 360px; margin: 5px auto; border: 1px solid #d4af37; 
@@ -49,7 +50,7 @@
         #settings-content.open { max-height: 60vh; padding: 15px; }
 
         input[type="text"], select, input[type="number"] { 
-            background: #151515; color: #d4af37; border: 1px solid #d4af37; padding: 10px; border-radius: 8px; width: 100%; margin-bottom: 10px; text-align: center; font-size: 16px; font-family: inherit;
+            background: #151515; color: #d4af37; border: 1px solid #d4af37; padding: 10px; border-radius: 8px; width: 100%; margin-bottom: 10px; text-align: center; font-size: 16px; font-family: inherit; outline: none;
         }
 
         .section-box { border-bottom: 1px solid rgba(212,175,55,0.15); padding-bottom: 12px; margin-bottom: 12px; }
@@ -57,40 +58,35 @@
         
         .toggle-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; color: #d4af37; font-size: 0.9rem; cursor: pointer; }
 
-        #main-area { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+        .prayer-item { display: flex; justify-content: space-between; align-items: center; background: rgba(212,175,55,0.07); padding: 10px; border-radius: 8px; margin-bottom: 6px; font-size: 0.85rem; border: 1px solid rgba(212,175,55,0.2); }
+        .del-btn { color: #ff4444; font-weight: bold; padding: 0 8px; cursor: pointer; font-size: 1.1rem; }
+
+        #main-area { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; }
         
         #bead-container { 
-            width: 52vw; height: 52vw; max-width: 190px; max-height: 190px; border-radius: 50%; 
+            width: 50vw; height: 50vw; max-width: 180px; max-height: 180px; border-radius: 50%; 
             background: radial-gradient(circle, #252525 0%, #000 100%); border: 3px solid #d4af37; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             box-shadow: 0 15px 45px rgba(0,0,0,0.9); transition: transform 0.05s;
         }
         #bead-container:active { transform: scale(0.97); }
-        #current-count { font-size: 3.2rem; font-weight: bold; line-height: 1; margin-bottom: 5px; }
+        #current-count { font-size: 3rem; font-weight: bold; line-height: 1; }
 
-        /* ΕΥΘΥΓΡΑΜΜΙΣΜΕΝΗ INFO BAR */
         .info-bar { 
-            width: 100%; max-width: 360px;
-            display: flex; 
-            justify-content: space-evenly; 
-            align-items: center; 
-            font-size: 0.75rem; 
-            color: rgba(212, 175, 55, 0.9);
-            padding: 10px 0;
-            border-top: 1px solid rgba(212, 175, 55, 0.1);
+            width: 100%; max-width: 360px; display: flex; justify-content: space-evenly; align-items: center; 
+            font-size: 0.7rem; color: rgba(212, 175, 55, 0.9); padding: 10px 0; border-top: 1px solid rgba(212, 175, 55, 0.1);
         }
         .info-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .info-value { font-weight: bold; font-size: 0.9rem; color: #fff; }
+        .info-value { font-weight: bold; font-size: 0.85rem; color: #fff; }
 
         .timer-wrapper { 
-            display: flex; align-items: center; gap: 8px; 
-            background: rgba(212, 175, 55, 0.1); padding: 5px 12px; border-radius: 20px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            display: flex; align-items: center; gap: 6px; background: rgba(212, 175, 55, 0.1); 
+            padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.2);
         }
-        #pause-btn { background: none; border: none; color: #d4af37; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; padding: 0; }
+        #pause-btn { background: none; border: none; color: #d4af37; font-size: 1rem; cursor: pointer; padding: 0; }
         
-        .dim-btn { background: #d4af37; color: #000; border: none; padding: 12px 28px; border-radius: 30px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
-        .reset-btn { background: transparent; border: 1px solid rgba(212,175,55,0.3); color: #d4af37; padding: 6px 18px; border-radius: 20px; font-size: 0.65rem; margin-top: 10px; opacity: 0.6; }
+        .dim-btn { background: #d4af37; color: #000; border: none; padding: 10px 25px; border-radius: 30px; font-weight: bold; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
+        .reset-btn { background: transparent; border: 1px solid rgba(212,175,55,0.3); color: #d4af37; padding: 5px 15px; border-radius: 20px; font-size: 0.6rem; margin-top: 5px; opacity: 0.6; }
     </style>
 </head>
 <body>
@@ -100,6 +96,7 @@
 
     <div id="prayer-area">
         <div id="prayer-text">Φόρτωση...</div>
+        <div style="font-size: 0.6rem; opacity: 0.4; margin-top: 5px;">Σύρετε δεξιά/αριστερά για αλλαγή</div>
     </div>
 
     <div class="settings-container">
@@ -120,13 +117,21 @@
                 <label class="toggle-row"><input type="checkbox" id="vib-on" onclick="saveVib(this)"> Σε κάθε κόμπο</label>
                 <label class="toggle-row"><input type="checkbox" id="vib-off" onclick="saveVib(this)"> Μόνο στον τερματισμό</label>
             </div>
+            <div class="section-box" style="border-bottom:none;">
+                <span class="option-label">Προσευχές</span>
+                <div style="display:flex; gap:5px; margin-bottom:15px;">
+                    <input type="text" id="new-prayer-input" placeholder="Νέα προσευχή..." style="margin:0; font-size:14px;">
+                    <button onclick="addNewPrayer()" style="background:#d4af37; border:none; border-radius:8px; padding:0 15px; font-weight:bold; color:#000;">+</button>
+                </div>
+                <div id="prayers-list-edit"></div>
+            </div>
         </div>
     </div>
 
     <div id="main-area">
         <div id="bead-container" onclick="countBead()">
             <span id="current-count">33</span>
-            <span style="font-size:0.65rem; opacity:0.6; letter-spacing:1px;">ΥΠΟΛΟΙΠΟ</span>
+            <span style="font-size:0.6rem; opacity:0.6; letter-spacing:1px;">ΥΠΟΛΟΙΠΟ</span>
         </div>
         
         <button class="dim-btn" onclick="setDim(true)">Σκοτεινή Οθόνη</button>
@@ -163,13 +168,63 @@
 
         let count = 0, total = 0, target = 33, cycles = 0;
         let elapsedBeforePause = 0, startTime = null, sessionInterval = null, isPaused = true;
-        const prayers = ["Κύριε Ἰησοῦ Χριστέ, ἐλέησόν με", "Ὑπεραγία Θεοτόκε, σῶσον ἡμᾶς", "Ἅγιε τοῦ Θεοῦ, πρέσβευε ὑπὲρ ἡμῶν"];
+        let pIndex = 0;
+        let startX = 0;
+
+        const defaultPrayers = ["Κύριε Ἰησοῦ Χριστέ,<br>ἐλέησόν με", "Ὑπεραγία Θεοτόκε,<br>σῶσον ἡμᾶς", "Ἅγιε τοῦ Θεοῦ,<br>πρέσβευε ὑπὲρ ἡμῶν"];
+        let prayers = JSON.parse(localStorage.getItem('my_prayers')) || [...defaultPrayers];
 
         function toggleSettings() {
             const c = document.getElementById('settings-content');
             c.classList.toggle('open');
             document.getElementById('arrow').innerText = c.classList.contains('open') ? '▲' : '▼';
+            if(c.classList.contains('open')) renderPrayerList();
         }
+
+        function addNewPrayer() {
+            const input = document.getElementById('new-prayer-input');
+            const val = input.value.trim();
+            if (val) {
+                prayers.push(val);
+                savePrayers();
+                input.value = '';
+                renderPrayerList();
+                if (prayers.length === 1) updatePrayerDisplay();
+            }
+        }
+
+        function removePrayer(index) {
+            if (prayers.length <= 1) return;
+            prayers.splice(index, 1);
+            if (pIndex >= prayers.length) pIndex = 0;
+            savePrayers();
+            renderPrayerList();
+            updatePrayerDisplay();
+        }
+
+        function renderPrayerList() {
+            const list = document.getElementById('prayers-list-edit');
+            list.innerHTML = prayers.map((p, i) => `
+                <div class="prayer-item">
+                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.replace('<br>', ' ')}</span>
+                    <span class="del-btn" onclick="removePrayer(${i})">✕</span>
+                </div>
+            `).join('');
+        }
+
+        function savePrayers() { localStorage.setItem('my_prayers', JSON.stringify(prayers)); }
+        function updatePrayerDisplay() { document.getElementById('prayer-text').innerHTML = prayers[pIndex] || "Επιλέξτε προσευχή"; }
+
+        // SWIPE LOGIC
+        document.getElementById('prayer-area').addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        document.getElementById('prayer-area').addEventListener('touchend', e => {
+            let diff = startX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) pIndex = (pIndex + 1) % prayers.length;
+                else pIndex = (pIndex - 1 + prayers.length) % prayers.length;
+                updatePrayerDisplay();
+            }
+        });
 
         function saveVib(checkbox) {
             document.getElementById('vib-on').checked = (checkbox.id === 'vib-on' && checkbox.checked);
@@ -218,7 +273,6 @@
             if (target > 0 && count >= target) {
                 cycles++;
                 count = 0;
-                // Vibrate with cycles count
                 let pattern = [];
                 for(let i=0; i<cycles; i++) { pattern.push(300); if(i<cycles-1) pattern.push(150); }
                 navigator.vibrate(pattern);
@@ -253,11 +307,14 @@
         }
 
         window.onload = () => {
-            document.getElementById('prayer-text').innerHTML = prayers[0];
+            updatePrayerDisplay();
             document.getElementById('vib-on').checked = localStorage.getItem('vib_on') === 'true';
             document.getElementById('vib-off').checked = localStorage.getItem('vib_off') === 'true';
             const lr = localStorage.getItem('last_rule');
-            if(lr) { document.getElementById('knot-select').value = lr; updateSettings(); }
+            if(lr) { 
+                document.getElementById('knot-select').value = lr; 
+                updateSettings(); 
+            }
             updateUI();
         };
     </script>
