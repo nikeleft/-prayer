@@ -3,15 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Κομποσκοίνι">
-    
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="icon" type="image/png" href="icon.png">
-    <link rel="manifest" href="manifest.json">
-
     <title>Ψηφιακὸν Κομποσκοίνι</title>
     <style>
         :root { --main-size: 1.1rem; }
@@ -23,120 +16,100 @@
             font-family: 'Times New Roman', Times, serif; 
             display: flex; 
             flex-direction: column; 
-            align-items: center; 
-            justify-content: flex-start; 
             height: 100vh; 
             margin: 0; 
             overflow: hidden; 
-            padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
+            padding: env(safe-area-inset-top) 10px env(safe-area-inset-bottom) 10px;
         }
 
         #splash-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #0f0f0f; display: flex; align-items: center; justify-content: center;
             z-index: 9999; transition: opacity 0.8s ease;
         }
-        #splash-screen img { max-width: 60%; object-fit: contain; }
 
         #dim-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9000; display: none; }
 
         /* Πάνω μέρος: Προσευχή */
         #prayer-display {
-            margin-top: 20px;
             text-align: center;
-            min-height: 20vh;
+            padding: 15px 0;
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
-            transition: font-size 0.3s ease;
         }
 
-        /* Ρυθμίσεις Dropdown */
+        /* Ρυθμίσεις Dropdown με Scroll */
         .settings-container {
             width: 100%;
-            max-width: 350px;
-            margin-bottom: 20px;
+            max-width: 400px;
+            margin: 0 auto 10px auto;
             border: 1px solid #d4af37;
-            border-radius: 15px;
-            overflow: hidden;
+            border-radius: 12px;
             background: rgba(212, 175, 55, 0.05);
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         #settings-toggle {
-            width: 100%;
-            padding: 12px;
-            background: rgba(212, 175, 55, 0.1);
-            color: #d4af37;
-            border: none;
-            font-family: inherit;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            font-size: calc(var(--main-size) * 0.8);
+            width: 100%; padding: 10px; background: rgba(212, 175, 55, 0.1);
+            color: #d4af37; border: none; font-family: inherit; font-weight: bold;
+            cursor: pointer; font-size: 1rem;
         }
 
         #settings-content {
             max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-out;
-            padding: 0 15px;
+            overflow-y: auto; /* Επιτρέπει το σκρολάρισμα αν τα γράμματα είναι μεγάλα */
+            transition: max-height 0.3s ease-out;
         }
 
         #settings-content.open {
-            max-height: 500px;
-            padding: 15px;
+            max-height: 60vh; /* Καταλαμβάνει έως το 60% της οθόνης αν χρειαστεί */
+            padding: 10px;
         }
 
-        select, input[type="number"] { 
+        select, input { 
             background: #1a1a1a; color: #d4af37; border: 1px solid #d4af37; 
-            padding: 10px; border-radius: 8px; width: 100%; 
-            margin-bottom: 10px; text-align: center; outline: none;
-            font-family: inherit;
-            font-size: var(--main-size);
+            padding: 8px; border-radius: 6px; width: 100%; margin-bottom: 8px;
+            text-align: center; font-family: inherit; font-size: var(--main-size);
         }
 
-        .options-group { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 12px; }
-        .option-label { font-size: calc(var(--main-size) * 0.6); text-transform: uppercase; opacity: 0.6; letter-spacing: 1px; }
-        .toggle { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: calc(var(--main-size) * 0.8); cursor: pointer; width: 100%; }
-        input[type="checkbox"] { accent-color: #d4af37; transform: scale(1.2); }
+        .options-group { width: 100%; display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; border-bottom: 1px solid rgba(212,175,55,0.1); padding-bottom: 10px; }
+        .toggle { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: calc(var(--main-size) * 0.9); cursor: pointer; }
 
-        /* Κεντρικός Κύκλος */
+        /* Κεντρική Περιοχή: Υπολογίζει τον υπόλοιπο χώρο */
         #main-area {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-evenly; /* Μοιράζει τον χώρο ανάμεσα σε κύκλο και κουμπιά */
             width: 100%;
+            min-height: 0;
         }
 
         #bead-container { 
-            width: 250px; height: 250px; border-radius: 50%; 
+            width: 220px; height: 220px; border-radius: 50%; 
             background: radial-gradient(circle, #1a1a1a 0%, #000 100%); 
-            border: 2px solid #d4af37; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8); transition: transform 0.05s ease; 
+            border: 2px solid #d4af37; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            box-shadow: 0 5px 25px rgba(0,0,0,0.7); transition: transform 0.05s;
         }
-        #bead-container:active { transform: scale(0.95); border-color: #fff; }
+        #bead-container:active { transform: scale(0.96); }
 
-        .cross-icon { width: 60px; height: 80px; fill: #d4af37; margin-bottom: 5px; }
-        #current-count { font-size: 3.5rem; font-weight: bold; line-height: 1; }
-        #target-label { font-size: 0.7rem; opacity: 0.6; margin-top: 5px; text-align: center; }
+        #current-count { font-size: 3rem; font-weight: bold; }
+        #target-label { font-size: 0.7rem; opacity: 0.6; }
 
-        .dim-btn { background: #d4af37; color: #000; border: none; padding: 12px; border-radius: 20px; font-weight: bold; width: 100%; text-transform: uppercase; cursor: pointer; font-size: calc(var(--main-size) * 0.7); }
-        .reset-btn { background: transparent; border: 1px solid #d4af37; color: #d4af37; padding: 8px 20px; border-radius: 20px; margin-top: 20px; font-size: 0.8rem; cursor: pointer; }
-        .goal-reached { border-color: #fff !important; box-shadow: 0 0 60px rgba(212, 175, 55, 0.4) !important; }
+        .dim-btn { background: #d4af37; color: #000; border: none; padding: 10px; border-radius: 15px; font-weight: bold; width: 100%; cursor: pointer; font-size: 0.9rem; }
+        .reset-btn { background: transparent; border: 1px solid #d4af37; color: #d4af37; padding: 10px 25px; border-radius: 20px; font-size: 1rem; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="splash-screen"><img src="icon.png" alt="Logo"></div>
+    <div id="splash-screen"><h2 style="color:#d4af37">Κομποσκοίνι</h2></div>
     <div id="dim-overlay" onclick="countBead()" ontouchmove="handleSwipe(event)"></div>
 
     <div id="prayer-display">
@@ -144,9 +117,7 @@
     </div>
 
     <div class="settings-container">
-        <button id="settings-toggle" onclick="toggleSettings()">
-            ⚙ ΡΥΘΜΙΣΕΙΣ <span id="arrow">▼</span>
-        </button>
+        <button id="settings-toggle" onclick="toggleSettings()">⚙ ΡΥΘΜΙΣΕΙΣ <span id="arrow">▼</span></button>
         <div id="settings-content">
             <select id="knot-select" onchange="updateSettings()">
                 <option value="33">33 κόμποι</option>
@@ -155,24 +126,22 @@
                 <option value="timer">Χρόνος (λεπτά)</option>
                 <option value="free">Χωρίς στόχο</option>
             </select>
-            <input type="number" id="custom-input" placeholder="Αριθμός..." style="display:none;" oninput="updateSettings()">
+            <input type="number" id="custom-input" style="display:none;" oninput="updateSettings()">
 
             <select id="font-select" onchange="updateFontSize()">
-                <option value="1.1rem">Μέγεθος: Κανονικό</option>
-                <option value="1.4rem">Μέγεθος: Μεγάλο</option>
-                <option value="1.8rem">Μέγεθος: Πολύ Μεγάλο</option>
+                <option value="1.1rem">Γράμματα: Κανονικά</option>
+                <option value="1.4rem">Γράμματα: Μεγάλα</option>
+                <option value="1.7rem">Γράμματα: Πολύ Μεγάλα</option>
             </select>
 
             <div class="options-group">
-                <span class="option-label">Ήχος</span>
-                <label class="toggle"><input type="checkbox" id="snd-on" onclick="onlyOne(this, 'snd')"> <span>Σε κάθε κόμπο</span></label>
-                <label class="toggle"><input type="checkbox" id="snd-off" onclick="onlyOne(this, 'snd')"> <span>Στον τερματισμό</span></label>
+                <label class="toggle"><input type="checkbox" id="snd-on" onclick="onlyOne(this, 'snd')"> <span>Ήχος σε κάθε κόμπο</span></label>
+                <label class="toggle"><input type="checkbox" id="snd-off" onclick="onlyOne(this, 'snd')"> <span>Ήχος στον τερματισμό</span></label>
             </div>
 
             <div id="vibration-section" class="options-group">
-                <span class="option-label">Δόνηση</span>
-                <label class="toggle"><input type="checkbox" id="vib-on" onclick="onlyOne(this, 'vib')"> <span>Σε κάθε κόμπο</span></label>
-                <label class="toggle"><input type="checkbox" id="vib-off" onclick="onlyOne(this, 'vib')"> <span>Στον τερματισμό</span></label>
+                <label class="toggle"><input type="checkbox" id="vib-on" onclick="onlyOne(this, 'vib')"> <span>Δόνηση σε κάθε κόμπο</span></label>
+                <label class="toggle"><input type="checkbox" id="vib-off" onclick="onlyOne(this, 'vib')"> <span>Δόνηση στον τερματισμό</span></label>
             </div>
 
             <button class="dim-btn" onclick="toggleDim(true)">Χαμηλός Φωτισμός</button>
@@ -181,40 +150,36 @@
 
     <div id="main-area">
         <div id="bead-container" onclick="countBead()">
-            <svg class="cross-icon" viewBox="0 0 24 24"><path d="M10 2h4v5h5v4h-5v11h-4v-11h-5v-4h5z"/></svg>
             <span id="current-count">33</span>
-            <span id="target-label">ΥΠΟΛΟΙΠΟ ΚΟΜΠΩΝ</span>
+            <span id="target-label">ΥΠΟΛΟΙΠΟ</span>
         </div>
         
         <div style="text-align:center;">
             <button class="reset-btn" onclick="resetAll()">ΜΗΔΕΝΙΣΜΟΣ</button>
-            <div style="margin-top:10px; font-size:0.8rem; opacity:0.6;">ΣΥΝΟΛΟ: <span id="total">0</span></div>
+            <div style="margin-top:5px; font-size:0.8rem; opacity:0.6;">ΣΥΝΟΛΟ: <span id="total">0</span></div>
         </div>
     </div>
 
     <audio id="bead-sound" src="click.mp3" preload="auto"></audio>
 
     <script>
-        let count = 0, total = 0, target = 33, mode = 'knots', timerSeconds = 0, timerInterval = null, touchStartY = 0;
+        let count = 0, total = 0, target = 33, mode = 'knots', timerSeconds = 0, timerInterval = null;
         const beadSound = document.getElementById('bead-sound');
 
-        // iPhone Detection
-        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-            document.getElementById('vibration-section').style.display = 'none';
-        }
+        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) document.getElementById('vibration-section').style.display = 'none';
 
         function toggleSettings() {
             const content = document.getElementById('settings-content');
-            const arrow = document.getElementById('arrow');
             content.classList.toggle('open');
-            arrow.innerText = content.classList.contains('open') ? '▲' : '▼';
+            document.getElementById('arrow').innerText = content.classList.contains('open') ? '▲' : '▼';
         }
 
         function updateFontSize() {
             const size = document.getElementById('font-select').value;
             document.documentElement.style.setProperty('--main-size', size);
-            // Η προσευχή παίρνει πάντα λίγο μεγαλύτερο μέγεθος από τα μενού
-            document.getElementById('prayer-display').style.fontSize = `calc(${size} * 1.6)`;
+            document.getElementById('prayer-display').style.fontSize = `calc(${size} * 1.5)`;
+            // Διορθώνει το layout σε περίπτωση που το scroll έμεινε σε περίεργη θέση
+            window.scrollTo(0,0);
         }
 
         function onlyOne(checkbox, group) {
@@ -222,93 +187,56 @@
             checkboxes.forEach((item) => { if (item !== checkbox) item.checked = false; });
         }
 
-        function playSoundEffect() {
-            beadSound.currentTime = 0;
-            beadSound.play().catch(() => {});
-        }
+        function playSound() { beadSound.currentTime = 0; beadSound.play().catch(()=>{}); }
 
         window.addEventListener('load', () => {
-            setTimeout(() => { 
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 800);
-            }, 2500);
+            setTimeout(() => { document.getElementById('splash-screen').style.opacity = '0'; setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 600); }, 1500);
             updateFontSize();
         });
 
-        function toggleDim(show) { document.getElementById('dim-overlay').style.display = show ? 'block' : 'none'; }
-        function handleSwipe(e) { if (Math.abs(touchStartY - e.touches[0].clientY) > 60) toggleDim(false); }
-        
-        document.addEventListener('touchstart', (e) => { 
-            touchStartY = e.touches[0].clientY; 
-            beadSound.play().then(() => { beadSound.pause(); }).catch(() => {});
-        }, {passive:true});
-
-        function updateSettings() {
-            const s = document.getElementById('knot-select'), c = document.getElementById('custom-input');
-            clearInterval(timerInterval); timerInterval = null;
-            if (s.value === 'timer') {
-                mode = 'timer'; c.style.display = 'block'; 
-                target = parseInt(c.value) || 0; timerSeconds = target * 60;
-            } else {
-                mode = 'knots'; c.style.display = (s.value === 'custom') ? 'block' : 'none';
-                target = (s.value === 'free') ? 0 : (s.value === 'custom' ? (parseInt(c.value) || 0) : parseInt(s.value));
-            }
-            resetCurrent();
-        }
-
         function countBead() {
-            const sOn = document.getElementById('snd-on').checked;
-            const sOff = document.getElementById('snd-off').checked;
-            const vOn = document.getElementById('vib-on').checked;
-            const vOff = document.getElementById('vib-off').checked;
-
+            const sOn = document.getElementById('snd-on').checked, sOff = document.getElementById('snd-off').checked;
+            const vOn = document.getElementById('vib-on').checked, vOff = document.getElementById('vib-off').checked;
+            
             if (mode === 'timer' && !timerInterval && timerSeconds > 0) {
-                timerInterval = setInterval(() => {
-                    timerSeconds--; if (timerSeconds <= 0) { clearInterval(timerInterval); finishSession(); }
-                    updateUI();
-                }, 1000);
+                timerInterval = setInterval(() => { timerSeconds--; if (timerSeconds <= 0) { clearInterval(timerInterval); finish(); } updateUI(); }, 1000);
             }
 
             total++;
             if (mode === 'knots') {
                 count++;
                 if (target > 0 && count === target) {
-                    if (sOn || sOff) playSoundEffect();
+                    if (sOn || sOff) playSound();
                     if (navigator.vibrate && (vOn || vOff)) navigator.vibrate([400, 200, 400]);
                     document.getElementById('bead-container').classList.add('goal-reached');
                 } else {
-                    if (sOn) playSoundEffect();
+                    if (sOn) playSound();
                     if (navigator.vibrate && vOn) navigator.vibrate(60);
                 }
                 if (target > 0 && count > target) { count = 1; document.getElementById('bead-container').classList.remove('goal-reached'); }
-            } else {
-                if (sOn) playSoundEffect();
-                if (navigator.vibrate && vOn) navigator.vibrate(60);
-            }
+            } else { if (sOn) playSound(); if (navigator.vibrate && vOn) navigator.vibrate(60); }
             updateUI();
         }
 
-        function finishSession() {
-            if (document.getElementById('snd-on').checked || document.getElementById('snd-off').checked) playSoundEffect();
-            if (navigator.vibrate && (document.getElementById('vib-on').checked || document.getElementById('vib-off').checked)) navigator.vibrate([400, 200, 400]);
-            document.getElementById('bead-container').classList.add('goal-reached');
-        }
-
+        function resetAll() { total = 0; clearInterval(timerInterval); timerInterval = null; count = 0; document.getElementById('bead-container').classList.remove('goal-reached'); updateUI(); }
         function updateUI() {
-            const d = document.getElementById('current-count'), l = document.getElementById('target-label');
-            if (mode === 'knots') {
-                d.innerText = (target === 0) ? total : Math.max(0, target - count);
-                l.innerText = (target === 0) ? "ΣΥΝΟΛΟ" : "ΥΠΟΛΟΙΠΟ ΚΟΜΠΩΝ";
-            } else {
-                d.innerText = `${Math.floor(timerSeconds/60)}:${(timerSeconds%60).toString().padStart(2,'0')}`;
-                l.innerText = "ΥΠΟΛΟΙΠΟ ΧΡΟΝΟΥ";
-            }
+            const d = document.getElementById('current-count');
+            d.innerText = (mode === 'knots') ? (target === 0 ? total : Math.max(0, target - count)) : `${Math.floor(timerSeconds/60)}:${(timerSeconds%60).toString().padStart(2,'0')}`;
             document.getElementById('total').innerText = total;
         }
 
-        function resetCurrent() { count = 0; if (mode === 'timer') timerSeconds = (parseInt(document.getElementById('custom-input').value) || 0) * 60; document.getElementById('bead-container').classList.remove('goal-reached'); updateUI(); }
-        function resetAll() { total = 0; clearInterval(timerInterval); timerInterval = null; resetCurrent(); }
-        updateUI();
+        function updateSettings() {
+            const s = document.getElementById('knot-select'), c = document.getElementById('custom-input');
+            mode = s.value === 'timer' ? 'timer' : 'knots';
+            c.style.display = (s.value === 'custom' || s.value === 'timer') ? 'block' : 'none';
+            target = (s.value === 'free') ? 0 : (s.value === 'custom' ? parseInt(c.value)||0 : parseInt(s.value));
+            if(mode === 'timer') timerSeconds = (parseInt(c.value)||0)*60;
+            resetAll();
+        }
+
+        function toggleDim(show) { document.getElementById('dim-overlay').style.display = show ? 'block' : 'none'; }
+        document.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; beadSound.play().then(()=>beadSound.pause()).catch(()=>{}); }, {passive:true});
+        function handleSwipe(e) { if (Math.abs(touchStartY - e.touches[0].clientY) > 60) toggleDim(false); }
     </script>
 </body>
 </html>
