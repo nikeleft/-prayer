@@ -134,8 +134,8 @@
         <input type="number" id="custom-input" placeholder="Αριθμός..." style="display:none;" oninput="updateSettings()">
 
         <div class="vibration-options">
-            <label class="vibration-toggle"><input type="radio" name="vib" id="vib-on" checked> Δόνηση σε κάθε κόμπο</label>
-            <label class="vibration-toggle"><input type="radio" name="vib" id="vib-off"> Μόνο στον τερματισμό</label>
+            <label class="vibration-toggle"><input type="radio" name="vib" id="vib-on"> Δόνηση σε κάθε κόμπο</label>
+            <label class="vibration-toggle"><input type="radio" name="vib" id="vib-off" checked> Μόνο στον τερματισμό</label>
         </div>
         
         <button class="dim-btn" onclick="toggleDim(true)">Χαμηλός Φωτισμός</button>
@@ -185,7 +185,7 @@
         function startTimer() {
             if (!timerRunning) {
                 startTime = Date.now();
-                timerInterval = setInterval(updateTimer, 10000); // Check every 10s for efficiency
+                timerInterval = setInterval(updateTimer, 10000);
                 timerRunning = true;
             }
         }
