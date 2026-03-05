@@ -135,7 +135,7 @@
 
         <div class="vibration-options">
             <label class="vibration-toggle"><input type="radio" name="vib" id="vib-on"> Δόνηση σε κάθε κόμπο</label>
-            <label class="vibration-toggle"><input type="radio" name="vib" id="vib-off" checked> Μόνο στον τερματισμό</label>
+            <label class="vibration-toggle"><input type="radio" name="vib" id="vib-off"> Μόνο στον τερματισμό</label>
         </div>
         
         <button class="dim-btn" onclick="toggleDim(true)">Χαμηλός Φωτισμός</button>
@@ -209,17 +209,22 @@
         function countBead() {
             if (total === 0) startTimer();
             count++; total++;
+            
             const vibEvery = document.getElementById('vib-on').checked;
+            const vibEnd = document.getElementById('vib-off').checked;
 
             if (navigator.vibrate) {
                 if (target > 0 && count === target) {
-                    cycles++;
-                    let pattern = [];
-                    for(let i=0; i < cycles; i++) {
-                        pattern.push(300); if(i < cycles - 1) pattern.push(200);
+                    // Αν είναι επιλεγμένο είτε το "Every" είτε το "End", κάνει τη δόνηση κύκλου
+                    if (vibEvery || vibEnd) {
+                        cycles++;
+                        let pattern = [];
+                        for(let i=0; i < cycles; i++) {
+                            pattern.push(300); if(i < cycles - 1) pattern.push(200);
+                        }
+                        navigator.vibrate(pattern);
+                        document.getElementById('bead-container').classList.add('goal-reached');
                     }
-                    navigator.vibrate(pattern);
-                    document.getElementById('bead-container').classList.add('goal-reached');
                 } else if (vibEvery) {
                     navigator.vibrate(60);
                 }
