@@ -20,10 +20,15 @@
             padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
         }
 
+        /* SPLASH SCREEN ΜΕ ΤΟ ΕΙΚΟΝΙΔΙΟ ΣΟΥ */
         #splash-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #0f0f0f; display: flex; align-items: center; justify-content: center; 
+            background: #0a0a0a; display: flex; align-items: center; justify-content: center; 
             z-index: 99999; transition: opacity 0.5s ease-out; pointer-events: none;
+        }
+        #splash-icon {
+            width: 120px; height: 120px;
+            object-fit: contain;
         }
 
         #dim-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 90000; display: none; }
@@ -72,7 +77,10 @@
 </head>
 <body>
 
-    <div id="splash-screen"></div>
+    <div id="splash-screen">
+        <img src="icon.png" id="splash-icon" alt="App Icon">
+    </div>
+
     <div id="dim-overlay"></div>
 
     <div id="prayer-area">
@@ -138,14 +146,12 @@
     </div>
 
     <script>
-        // Service Worker Logic
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(() => {
                 navigator.serviceWorker.register('data:application/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGU9Pnt9KTs=');
             });
         }
 
-        // State Management
         let count = parseInt(localStorage.getItem('count')) || 0;
         let total = parseInt(localStorage.getItem('total')) || 0;
         let cycles = parseInt(localStorage.getItem('cycles')) || 0;
@@ -237,17 +243,9 @@
         }
 
         function resetAll() {
-            // Μηδενισμός αριθμών
-            count = 0;
-            total = 0;
-            cycles = 0;
-            elapsedAtPause = 0;
-            
-            // Παύση και μηδενισμός χρόνου
+            count = 0; total = 0; cycles = 0; elapsedAtPause = 0;
             pauseTimer();
             document.getElementById('session-timer').innerText = "00:00:00";
-            
-            // Αποθήκευση και Ενημέρωση UI
             saveState();
             updateUI();
         }
@@ -284,24 +282,22 @@
         }
 
         window.onload = () => {
-            // Άμεση αφαίρεση του splash screen
-            document.getElementById('splash-screen').style.opacity='0';
-            setTimeout(() => document.getElementById('splash-screen').style.display='none', 500);
+            // Το splash screen φεύγει μετά από 1 δευτερόλεπτο
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity='0';
+                setTimeout(() => document.getElementById('splash-screen').style.display='none', 500);
+            }, 1000);
 
             document.getElementById('prayer-text').innerHTML = prayers[0];
-            
             document.getElementById('vib-on').checked = localStorage.getItem('vib_on') === 'true';
             document.getElementById('vib-off').checked = localStorage.getItem('vib_off') === 'true';
             
             let knotSel = document.getElementById('knot-select');
             let customInp = document.getElementById('custom-input');
-            if(target === 0) { knotSel.value = 'free'; } 
-            else if([33, 100, 300].includes(target)) { knotSel.value = target; } 
-            else { 
-                knotSel.value = 'custom'; 
-                customInp.style.display = 'block'; 
-                customInp.value = target; 
-            }
+            if(target === 0) knotSel.value = 'free';
+            else if([33, 100, 300].includes(target)) knotSel.value = target;
+            else { knotSel.value = 'custom'; customInp.style.display = 'block'; customInp.value = target; }
+            
             updateUI();
         };
     </script>
