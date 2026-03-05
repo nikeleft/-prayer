@@ -23,7 +23,6 @@
             padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
         }
 
-        /* Splash Screen */
         #splash-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #0f0f0f; display: flex; align-items: center; justify-content: center; 
@@ -37,7 +36,6 @@
         #prayer-area { width: 100%; text-align: center; padding-top: 50px; padding-bottom: 10px; flex-shrink: 0; }
         #prayer-text { font-size: 1.6rem; line-height: 1.3; min-height: 5rem; display: flex; align-items: center; justify-content: center; padding: 0 10px; color: #d4af37; }
 
-        /* Settings UI */
         .settings-container { 
             width: 100%; max-width: 350px; margin: 5px auto 10px; border: 1px solid #d4af37; 
             border-radius: 15px; background: rgba(0, 0, 0, 0.96); backdrop-filter: blur(15px); overflow: hidden; z-index: 10;
@@ -56,7 +54,7 @@
         }
         #settings-content.open { 
             max-height: 70vh; 
-            padding: 20px 15px 100px 15px; /* Unlimited scroll space */
+            padding: 20px 15px 100px 15px; 
         }
 
         input[type="text"], select, input[type="number"] { 
@@ -72,7 +70,6 @@
         .prayer-item { display: flex; justify-content: space-between; align-items: center; background: rgba(212,175,55,0.07); padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 0.9rem; border: 1px solid rgba(212,175,55,0.3); color: #d4af37; }
         .del-btn { color: #ff4444; font-weight: bold; padding: 5px 10px; cursor: pointer; font-size: 1.2rem; }
 
-        /* Counter Area */
         #main-area { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; }
         #bead-container { 
             width: 58vw; height: 58vw; max-width: 210px; max-height: 210px; border-radius: 50%; 
@@ -114,8 +111,8 @@
 
             <div class="section-box">
                 <span class="option-label">Δόνηση</span>
-                <label class="toggle-row"><input type="checkbox" id="vib-on" onclick="onlyOne(this,'vib')"> Σε κάθε κόμπο</label>
-                <label class="toggle-row"><input type="checkbox" id="vib-off" onclick="onlyOne(this,'vib')"> Μόνο στον τερματισμό</label>
+                <label class="toggle-row"><input type="checkbox" id="vib-on" onclick="saveVib(this,'vib')"> Σε κάθε κόμπο</label>
+                <label class="toggle-row"><input type="checkbox" id="vib-off" onclick="saveVib(this,'vib')"> Μόνο στον τερματισμό</label>
             </div>
 
             <div class="section-box" style="border-bottom:none;">
@@ -143,7 +140,6 @@
     </div>
 
     <script>
-        // Service Worker Registration for PWA Installation
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(() => {});
         }
@@ -180,9 +176,17 @@
         }
 
         function savePrayers() { localStorage.setItem('my_prayers', JSON.stringify(prayers)); }
+        
+        // Νέα συνάρτηση αποθήκευσης δόνησης
+        function saveVib(checkbox, group) {
+            const list = ['vib-on', 'vib-off'];
+            list.forEach(id => { if(document.getElementById(id) !== checkbox) document.getElementById(id).checked = false; });
+            localStorage.setItem('vib_on', document.getElementById('vib-on').checked);
+            localStorage.setItem('vib_off', document.getElementById('vib-off').checked);
+        }
+
         function setDim(show) { document.getElementById('dim-overlay').style.display = show ? 'block' : 'none'; }
 
-        // Swipe Navigation
         document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, {passive: true});
         document.addEventListener('touchend', e => {
             let diffX = e.changedTouches[0].screenX - touchStartX;
@@ -198,18 +202,12 @@
 
         function updatePrayerDisplay() { document.getElementById('prayer-text').innerHTML = prayers[pIndex]; }
 
-        function onlyOne(checkbox, group) {
-            const list = ['vib-on', 'vib-off'];
-            list.forEach(id => { if(document.getElementById(id) !== checkbox) document.getElementById(id).checked = false; });
-        }
-
-        // Cycle-based Vibration Logic
         function multiVibrate(times) {
             if (!navigator.vibrate) return;
             let pattern = [];
             for(let i=0; i<times; i++) {
-                pattern.push(400); // Vibrate
-                if(i < times - 1) pattern.push(200); // Gap
+                pattern.push(400); 
+                if(i < times - 1) pattern.push(200); 
             }
             navigator.vibrate(pattern);
         }
@@ -273,6 +271,10 @@
 
         window.addEventListener('load', () => {
             updatePrayerDisplay();
+            // Φόρτωση ρυθμίσεων δόνησης
+            document.getElementById('vib-on').checked = localStorage.getItem('vib_on') === 'true';
+            document.getElementById('vib-off').checked = localStorage.getItem('vib_off') === 'true';
+            
             setTimeout(() => { document.getElementById('splash-screen').style.opacity = '0'; setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 800); }, 2500);
         });
     </script>
