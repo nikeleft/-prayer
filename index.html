@@ -19,18 +19,13 @@
             padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
         }
 
-        /* ΔΙΟΡΘΩΜΕΝΟ SPLASH SCREEN */
+        /* SPLASH SCREEN: ΕΠΙΣΤΡΟΦΗ ΣΤΗ ΜΕΘΟΔΟ IMG ΠΟΥ ΔΟΥΛΕΥΕ */
         #splash-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #0a0a0a; 
-            display: flex; align-items: center; justify-content: center; 
-            z-index: 999999; transition: opacity 0.5s ease-out;
+            background: #0a0a0a; display: flex; align-items: center; justify-content: center; 
+            z-index: 999999; transition: opacity 0.5s ease-out; pointer-events: none;
         }
-        .splash-logo {
-            width: 150px; height: 150px;
-            background: url('icon.png') no-repeat center center;
-            background-size: contain;
-        }
+        #splash-icon { width: 150px; height: 150px; object-fit: contain; }
 
         #dim-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 90000; display: none; }
 
@@ -72,14 +67,12 @@
         #pause-btn { background: none; border: none; color: #d4af37; font-size: 1.2rem; cursor: pointer; padding: 0; }
 
         .reset-btn { background: transparent; border: 1px solid rgba(212,175,55,0.3); color: #d4af37; padding: 10px 25px; border-radius: 25px; font-size: 0.95rem; margin-top: 10px; font-weight: bold; cursor: pointer; }
-        
-        .prayer-item { display: flex; justify-content: space-between; align-items: center; background: rgba(212,175,55,0.05); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(212,175,55,0.2); }
     </style>
 </head>
 <body>
 
     <div id="splash-screen">
-        <div class="splash-logo"></div>
+        <img src="icon.png" id="splash-icon">
     </div>
 
     <div id="dim-overlay"></div>
@@ -127,22 +120,12 @@
         <input type="number" id="custom-input" style="display:none;" placeholder="Εἰσάγετε ἀριθμό..." oninput="updateSettings()">
         
         <label style="display:block; margin: 20px 0 10px;">Δόνηση</label>
-        <div class="vib-option">
-            <input type="checkbox" id="vib-on" onchange="saveVib('on')"> 
-            <span>Σὲ κάθε κόμπο</span>
-        </div>
-        <div class="vib-option">
-            <input type="checkbox" id="vib-off" onchange="saveVib('off')"> 
-            <span>Μόνο στον τερματισμό</span>
-        </div>
+        <label class="vib-option"><input type="checkbox" id="vib-on" onchange="saveVib('on')"> <span>Σὲ κάθε κόμπο</span></label>
+        <label class="vib-option"><input type="checkbox" id="vib-off" onchange="saveVib('off')"> <span>Μόνο στον τερματισμό</span></label>
     </div>
 
     <div id="prayers-panel" class="panel">
         <div class="panel-header"><h3>Προσευχές</h3><span class="close-panel" onclick="togglePanel('prayers-panel')">✕</span></div>
-        <div style="display:flex; gap:10px; margin-bottom:20px;">
-            <input type="text" id="new-prayer-input" placeholder="Νέα προσευχή..." style="margin:0;">
-            <button onclick="addNewPrayer()" style="background:#d4af37; border:none; border-radius:12px; padding:0 15px; font-weight:bold;">+</button>
-        </div>
         <div id="prayers-list-edit"></div>
     </div>
 
@@ -153,10 +136,8 @@
         let target = parseInt(localStorage.getItem('target')) || 33;
         let targetType = localStorage.getItem('targetType') || 'knots';
         
-        const defaultPrayers = ["Κύριε Ἰησοῦ Χριστέ,<br>ἐλέησόν με", "Ὑπεραγία Θεοτόκε,<br>σῶσον ἡμᾶς", "Ἅγιε τοῦ Θεοῦ,<br>πρέσβευε ὑπὲρ ἡμῶν"];
-        let prayers = JSON.parse(localStorage.getItem('my_prayers')) || [...defaultPrayers];
+        const prayers = ["Κύριε Ἰησοῦ Χριστέ,<br>ἐλέησόν με", "Ὑπεραγία Θεοτόκε,<br>σῶσον ἡμᾶς", "Ἅγιε τοῦ Θεοῦ,<br>πρέσβευε ὑπὲρ ἡμῶν"];
         let pIndex = 0;
-
         let isPaused = true, startTime = null, elapsedAtPause = 0, timerInterval;
 
         function saveState() {
@@ -186,8 +167,7 @@
         }
 
         function startTimer() {
-            if(!isPaused) return;
-            isPaused = false;
+            if(!isPaused) return; isPaused = false;
             startTime = Date.now();
             document.getElementById('pause-btn').innerText = "⏸";
             timerInterval = setInterval(() => {
@@ -199,8 +179,7 @@
         }
 
         function pauseTimer() {
-            if(isPaused) return;
-            isPaused = true;
+            if(isPaused) return; isPaused = true;
             elapsedAtPause += Date.now() - startTime;
             clearInterval(timerInterval);
             document.getElementById('pause-btn').innerText = "▶";
@@ -209,8 +188,7 @@
         function toggleTimer(e) { e.stopPropagation(); isPaused ? startTimer() : pauseTimer(); }
 
         function updateSettings() {
-            const s = document.getElementById('knot-select');
-            const ci = document.getElementById('custom-input');
+            const s = document.getElementById('knot-select'), ci = document.getElementById('custom-input');
             targetType = 'knots';
             if(s.value === 'free') { target = 0; ci.style.display = 'none'; }
             else if(s.value === 'custom') { ci.style.display = 'block'; target = parseInt(ci.value) || 33; }
@@ -226,42 +204,22 @@
             localStorage.setItem('vib_off', vOff.checked);
         }
 
-        // ΧΩΡΙΣ ΕΡΩΤΗΣΗ RESET
+        // ΔΙΟΡΘΩΜΕΝΟ RESET: ΧΩΡΙΣ ΕΡΩΤΗΣΗ, ΕΠΑΝΑΦΟΡΑ ΣΤΟΝ ΣΤΟΧΟ
         function resetAll() {
-            count = 0; total = 0; cycles = 0; elapsedAtPause = 0;
-            pauseTimer(); 
+            count = 0; 
+            total = 0; 
+            cycles = 0; 
+            elapsedAtPause = 0;
+            pauseTimer();
             document.getElementById('session-timer').innerText = "00:00:00";
-            saveState(); updateUI();
+            saveState();
+            updateUI();
         }
 
         function setDim(show) { document.getElementById('dim-overlay').style.display = show ? 'block' : 'none'; if(show) startTimer(); }
 
-        let sX = 0;
-        document.body.addEventListener('touchstart', e => sX = e.touches[0].clientX);
-        document.body.addEventListener('touchend', e => {
-            let diff = sX - e.changedTouches[0].clientX;
-            if(Math.abs(diff) > 60) {
-                if(document.getElementById('dim-overlay').style.display === 'block') setDim(false);
-                else {
-                    pIndex = diff > 0 ? (pIndex + 1) % prayers.length : (pIndex - 1 + prayers.length) % prayers.length;
-                    document.getElementById('prayer-text').innerHTML = prayers[pIndex];
-                }
-            }
-        });
-
-        function togglePanel(id) { document.getElementById(id).classList.toggle('open'); if(id==='prayers-panel') renderPrayers(); }
-        function addNewPrayer() {
-            let v = document.getElementById('new-prayer-input').value;
-            if(v) { prayers.push(v); localStorage.setItem('my_prayers', JSON.stringify(prayers)); renderPrayers(); document.getElementById('new-prayer-input').value=''; }
-        }
-        function renderPrayers() {
-            document.getElementById('prayers-list-edit').innerHTML = prayers.map((p, i) => `
-                <div class="prayer-item"><span>${p}</span><button style="background:none; border:none; color:red;" onclick="prayers.splice(${i},1);localStorage.setItem('my_prayers', JSON.stringify(prayers));renderPrayers();">✕</button></div>
-            `).join('');
-        }
-
         window.onload = () => {
-            // Το Splash Screen φεύγει αυτόματα μετά από 1.5 δευτερόλεπτο
+            // Το splash screen φεύγει μετά από 1.5 δευτερόλεπτο για να προλάβει να φανεί η εικόνα
             setTimeout(() => {
                 document.getElementById('splash-screen').style.opacity = '0';
                 setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 500);
@@ -270,12 +228,15 @@
             document.getElementById('prayer-text').innerHTML = prayers[0];
             document.getElementById('vib-on').checked = localStorage.getItem('vib_on') === 'true';
             document.getElementById('vib-off').checked = localStorage.getItem('vib_off') === 'true';
+            
             let ks = document.getElementById('knot-select'), ci = document.getElementById('custom-input');
             if(target === 0) ks.value = 'free';
             else if([33, 100, 300].includes(target)) ks.value = target;
             else { ks.value = 'custom'; ci.style.display = 'block'; ci.value = target; }
             updateUI();
         };
+
+        function togglePanel(id) { document.getElementById(id).classList.toggle('open'); }
     </script>
 </body>
 </html>
