@@ -10,8 +10,9 @@
         * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         body { background: #000; color: #d4af37; font-family: serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        #splash { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 1000; transition: opacity 0.5s; }
-        #splash img { width: 150px; height: 150px; object-fit: contain; }
+        /* SPLASH - ΜΟΝΟ ΤΟ ICON.PNG ΧΩΡΙΣ ΣΤΑΥΡΟ */
+        #splash { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        #splash img { width: 150px; height: 150px; object-fit: contain; border: none; outline: none; }
 
         #main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
         #prayer { font-size: 1.5rem; height: 4rem; display: flex; align-items: center; margin-bottom: 20px; }
@@ -23,7 +24,7 @@
         .btn-row { display: flex; gap: 10px; margin: 20px 0; }
         .btn { background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; color: #d4af37; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
         
-        .reset-btn { background: transparent; border: 1px solid #444; color: #d4af37; padding: 12px 30px; border-radius: 25px; margin-top: 20px; cursor: pointer; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .reset-btn { background: transparent; border: 1px solid #555; color: #d4af37; padding: 12px 30px; border-radius: 25px; margin-top: 20px; cursor: pointer; font-size: 1rem; }
         
         #stats { width: 100%; display: flex; justify-content: space-around; border-top: 1px solid #222; padding-top: 15px; font-size: 0.8rem; }
         .stat-val { display: block; font-size: 1.1rem; color: #fff; }
@@ -67,11 +68,7 @@
 </div>
 
 <script>
-    // Φόρτωση δεδομένων ή αρχικοποίηση
-    let target = parseInt(localStorage.getItem('target')) || 33;
-    let c = parseInt(localStorage.getItem('c')) || 0;
-    let t = parseInt(localStorage.getItem('t')) || 0;
-    let cy = parseInt(localStorage.getItem('cy')) || 0;
+    let c = 0, t = 0, cy = 0, target = parseInt(localStorage.getItem('target')) || 33;
 
     function updateUI() {
         document.getElementById('count').innerText = target - c;
@@ -81,39 +78,25 @@
 
     function countBead() {
         c++; t++;
-        if(c >= target) { 
-            c = 0; 
-            cy++; 
-            if(navigator.vibrate) navigator.vibrate([200, 100, 200]); 
-        } else { 
-            if(navigator.vibrate) navigator.vibrate(40); 
-        }
-        saveData();
+        if(c >= target) { c = 0; cy++; navigator.vibrate([200, 100, 200]); }
+        else { navigator.vibrate(40); }
+        localStorage.setItem('target', target);
         updateUI();
     }
 
-    // Η ΣΥΝΑΡΤΗΣΗ ΠΟΥ ΖΗΤΗΣΕΣ: Άμεσος μηδενισμός χωρίς ερώτηση
+    // Η ΣΥΝΑΡΤΗΣΗ ΠΟΥ ΖΗΤΗΣΕΣ: ΜΗΔΕΝΙΣΜΟΣ ΧΩΡΙΣ ΕΡΩΤΗΣΗ, ΔΙΑΤΗΡΩΝΤΑΣ ΤΟ TARGET
     function resetAll() {
-        c = 0; // Μηδενίζει τον τρέχοντα κύκλο
-        t = 0; // Μηδενίζει το γενικό σύνολο
-        cy = 0; // Μηδενίζει τους κύκλους
-        // Το 'target' ΔΕΝ αλλάζει, οπότε παραμένει η επιλογή κόμπων (33, 100 κλπ)
-        saveData();
+        c = 0; 
+        t = 0; 
+        cy = 0;
         updateUI();
     }
 
     function setTarget(v) {
         target = parseInt(v);
         c = 0;
-        saveData();
-        updateUI();
-    }
-
-    function saveData() {
         localStorage.setItem('target', target);
-        localStorage.setItem('c', c);
-        localStorage.setItem('t', t);
-        localStorage.setItem('cy', cy);
+        updateUI();
     }
 
     function openPanel() { document.getElementById('panel').classList.toggle('open'); }
@@ -122,9 +105,8 @@
         document.getElementById('targetSelect').value = target;
         updateUI();
         setTimeout(() => {
-            const s = document.getElementById('splash');
-            s.style.opacity = '0';
-            setTimeout(() => s.style.display = 'none', 500);
+            document.getElementById('splash').style.opacity = '0';
+            setTimeout(() => document.getElementById('splash').style.display = 'none', 500);
         }, 1500);
     };
 </script>
