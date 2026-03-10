@@ -112,6 +112,7 @@
 
     <div id="settings-panel" class="panel">
         <div class="panel-header"><h3>Ρυθμίσεις Κανόνα</h3><span style="cursor:pointer;font-size:1.5rem;" onclick="togglePanel('settings-panel')">✕</span></div>
+        
         <label>Επιλογὴ Κόμπων</label>
         <select id="knot-select" onchange="updateSettings()">
             <option value="33">33 κόμποι</option>
@@ -121,6 +122,13 @@
             <option value="custom">Επιλογή...</option>
         </select>
         <input type="number" id="custom-input" style="display:none;" placeholder="Αριθμός..." oninput="updateSettings()">
+
+        <label style="margin-top: 15px; display: block;">Ρύθμιση Δόνησης</label>
+        <select id="vibration-select" onchange="updateVibrationSettings()">
+            <option value="all">Σε κάθε κόμπο</option>
+            <option value="cycle">Μόνο στο τέλος του κύκλου</option>
+            <option value="none">Καμία δόνηση</option>
+        </select>
     </div>
 
     <div id="prayer-panel" class="panel">
@@ -138,6 +146,7 @@
         let total = parseInt(localStorage.getItem('total')) || 0;
         let cycles = parseInt(localStorage.getItem('cycles')) || 0;
         let target = localStorage.getItem('target') || "33";
+        let vibrationMode = localStorage.getItem('vibrationMode') || "all"; 
         
         const defaultPrayers = [
             "Κύριε Ἰησοῦ Χριστέ, ἐλέησόν με",
@@ -154,12 +163,10 @@
         const prayerText = document.getElementById('prayer-text');
         const dimOverlay = document.getElementById('dim-overlay');
 
-        // Main Swipe
         prayerArea.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: false});
         prayerArea.addEventListener('touchmove', e => { e.preventDefault(); }, {passive: false});
         prayerArea.addEventListener('touchend', e => { handleSwipe(e.changedTouches[0].screenX); }, {passive: false});
 
-        // Dim Overlay Logic (Tap to count, Swipe to exit)
         dimOverlay.addEventListener('touchstart', e => { 
             touchStartX = e.changedTouches[0].screenX; 
             touchStartY = e.changedTouches[0].screenY; 
@@ -206,6 +213,7 @@
             localStorage.setItem('total', total);
             localStorage.setItem('cycles', cycles);
             localStorage.setItem('target', target);
+            localStorage.setItem('vibrationMode', vibrationMode);
             localStorage.setItem('customPrayers', JSON.stringify(customPrayers));
             localStorage.setItem('currentPrayerIdx', currentPrayerIdx);
         }
@@ -218,12 +226,17 @@
                 let t = parseInt(target);
                 if(count >= t) { 
                     cycles++; count = 0; 
-                    // Πολλαπλές δονήσεις ανάλογα με τον κύκλο
-                    let pattern = [];
-                    for(let i=0; i<cycles; i++){ pattern.push(300); pattern.push(200); }
-                    navigator.vibrate(pattern);
-                } else { navigator.vibrate(40); }
-            } else { navigator.vibrate(40); }
+                    if (vibrationMode !== "none") {
+                        let pattern = [];
+                        for(let i=0; i<cycles; i++){ pattern.push(300); pattern.push(200); }
+                        navigator.vibrate(pattern);
+                    }
+                } else { 
+                    if (vibrationMode === "all") navigator.vibrate(40); 
+                }
+            } else { 
+                if (vibrationMode === "all") navigator.vibrate(40); 
+            }
             save(); updateUI();
         }
 
@@ -239,7 +252,6 @@
                 document.getElementById('cycles').innerText = cycles;
             }
             document.getElementById('total').innerText = total;
-            // Αλλαγή σειράς στο κόμμα
             prayerText.innerHTML = customPrayers[currentPrayerIdx].replace(/,/g, ',<br>');
         }
 
@@ -265,7 +277,7 @@
         }
 
         function resetAll() {
-            if(!confirm("Εἶστε σίγουροι;")) return;
+            // Η ερώτηση confirm αφαιρέθηκε όπως ζητήθηκε
             count = 0; total = 0; cycles = 0; elapsedAtPause = 0;
             if(timerInterval) clearInterval(timerInterval);
             isPaused = true;
@@ -280,6 +292,11 @@
             else if(s.value === 'free') { ci.style.display = 'none'; target = "free"; }
             else { ci.style.display = 'none'; target = s.value; }
             count = 0; save(); updateUI();
+        }
+
+        function updateVibrationSettings() {
+            vibrationMode = document.getElementById('vibration-select').value;
+            save();
         }
 
         function populatePrayerSelect() {
@@ -314,6 +331,7 @@
         window.onload = () => {
             populatePrayerSelect();
             document.getElementById('knot-select').value = target;
+            document.getElementById('vibration-select').value = vibrationMode;
             if(target === "custom") document.getElementById('custom-input').style.display = 'block';
             updateUI();
             setTimeout(() => {
