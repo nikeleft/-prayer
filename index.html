@@ -19,13 +19,6 @@
             padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
         }
 
-        #splash-screen { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #0a0a0a; display: flex; align-items: center; justify-content: center; 
-            z-index: 999999; transition: opacity 0.8s ease; pointer-events: none;
-        }
-        #splash-icon { width: 160px; height: 160px; object-fit: contain; }
-
         #dim-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #000; z-index: 90000; display: none; 
@@ -76,10 +69,6 @@
     </style>
 </head>
 <body>
-
-    <div id="splash-screen">
-        <img src="icon.png" id="splash-icon" alt="">
-    </div>
 
     <div id="dim-overlay"></div>
 
@@ -277,7 +266,6 @@
         }
 
         function resetAll() {
-            // Η ερώτηση confirm αφαιρέθηκε όπως ζητήθηκε
             count = 0; total = 0; cycles = 0; elapsedAtPause = 0;
             if(timerInterval) clearInterval(timerInterval);
             isPaused = true;
@@ -334,11 +322,6 @@
             document.getElementById('vibration-select').value = vibrationMode;
             if(target === "custom") document.getElementById('custom-input').style.display = 'block';
             updateUI();
-            setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
-                splash.style.opacity = '0';
-                setTimeout(() => splash.style.display = 'none', 800);
-            }, 2000);
         };
 
         function togglePanel(id) { document.getElementById(id).classList.toggle('open'); }
