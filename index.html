@@ -28,8 +28,17 @@
 
         #dim-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 90000; display: none; }
 
-        #prayer-area { width: 100%; text-align: center; padding-top: 40px; flex-shrink: 0; min-height: 110px; }
-        #prayer-text { font-size: 1.6rem; line-height: 1.3; min-height: 4.5rem; display: flex; align-items: center; justify-content: center; padding: 0 20px; color: #d4af37; font-weight: 500; }
+        /* Περιοχή Προσευχής */
+        #prayer-area { 
+            width: 100%; text-align: center; padding-top: 40px; flex-shrink: 0; min-height: 120px; 
+            touch-action: none; /* Κρίσιμο για το swipe */
+            cursor: pointer;
+        }
+        #prayer-text { 
+            font-size: 1.6rem; line-height: 1.3; min-height: 4.5rem; display: flex; 
+            align-items: center; justify-content: center; padding: 0 20px; 
+            color: #d4af37; font-weight: 500; transition: transform 0.2s ease-out, opacity 0.2s;
+        }
 
         #main-area { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; }
         
@@ -42,18 +51,25 @@
         #bead-container:active { transform: scale(0.95); }
         #current-count { font-size: 3.8rem; font-weight: bold; line-height: 1; margin: 0; }
 
-        .nav-btn { background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; color: #d4af37; padding: 10px 18px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; }
+        .nav-btn { background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; color: #d4af37; padding: 10px 12px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 0.65rem; text-transform: uppercase; }
         input, select { background: #1a1a1a; color: #fff; border: 1px solid #d4af37; padding: 15px; border-radius: 12px; width: 100%; margin-bottom: 15px; font-family: inherit; font-size: 1rem; outline: none; }
         
         .info-bar { width: 100%; max-width: 380px; display: flex; justify-content: space-around; align-items: center; padding: 12px 0; border-top: 1px solid rgba(212, 175, 55, 0.1); font-size: 0.7rem; }
         .info-value { display: block; font-weight: bold; font-size: 0.95rem; color: #fff; margin-top: 4px; }
 
+        #timer-toggle {
+            background: none; border: 1px solid rgba(212, 175, 55, 0.5); color: #d4af37;
+            border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; margin-bottom: 5px; font-size: 0.8rem;
+        }
+
         .reset-btn { background: transparent; border: 1px solid rgba(212,175,55,0.4); color: #d4af37; padding: 12px 30px; border-radius: 25px; font-size: 1rem; margin-top: 10px; font-weight: bold; cursor: pointer; }
-        .reset-btn:active { background: rgba(212,175,55,0.1); }
 
         .panel { position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%; background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(20px); border-top: 2px solid #d4af37; border-radius: 30px 30px 0 0; z-index: 10000; transition: bottom 0.4s ease; padding: 30px 20px; overflow-y: auto; }
         .panel.open { bottom: 0; }
         .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        
+        .add-btn { background: #d4af37; color: #000; border: none; padding: 10px; border-radius: 10px; font-weight: bold; width: 100%; margin-top: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -73,15 +89,19 @@
             <span id="current-count">0</span>
         </div>
 
-        <div style="display:flex; gap:10px;">
+        <div style="display:flex; gap:8px;">
             <button class="nav-btn" onclick="togglePanel('settings-panel')">⚙ ΚΑΝΟΝΑΣ</button>
+            <button class="nav-btn" onclick="togglePanel('prayer-panel')">🙏 ΠΡΟΣΕΥΧΕΣ</button>
             <button class="nav-btn" onclick="setDim(true)">🌙 ΝΥΧΤΑ</button>
         </div>
 
         <div class="info-bar">
             <div style="text-align:center;">ΣΥΝΟΛΟ <span id="total" class="info-value">0</span></div>
-            <div style="text-align:center;">ΚΥΚΛΟΙ <span id="cycles" class="info-value">0</span></div>
-            <div style="text-align:center;">ΧΡΟΝΟΣ <span id="session-timer" class="info-value">00:00:00</span></div>
+            <div id="cycles-container" style="text-align:center;">ΚΥΚΛΟΙ <span id="cycles" class="info-value">0</span></div>
+            <div style="text-align:center; display: flex; flex-direction: column; align-items: center;">
+                <button id="timer-toggle" onclick="toggleTimer()">▶</button>
+                ΧΡΟΝΟΣ <span id="session-timer" class="info-value">00:00:00</span>
+            </div>
         </div>
         
         <button class="reset-btn" onclick="resetAll()">ΒΑΖΩ ΑΡΧΗ</button>
@@ -89,54 +109,137 @@
 
     <div id="settings-panel" class="panel">
         <div class="panel-header"><h3>Ρυθμίσεις Κανόνα</h3><span style="cursor:pointer;font-size:1.5rem;" onclick="togglePanel('settings-panel')">✕</span></div>
-        <label>Επιλογή Κόμπων</label>
+        <label>Επιλογὴ Κόμπων</label>
         <select id="knot-select" onchange="updateSettings()">
             <option value="33">33 κόμποι</option>
             <option value="100">100 κόμποι</option>
             <option value="300">300 κόμποι</option>
+            <option value="free">Νά 'ναι εὐλογημένο (ἐλεύθερο)</option>
             <option value="custom">Επιλογή...</option>
         </select>
         <input type="number" id="custom-input" style="display:none;" placeholder="Αριθμός..." oninput="updateSettings()">
     </div>
 
+    <div id="prayer-panel" class="panel">
+        <div class="panel-header"><h3>Επιλογὴ Προσευχῆς</h3><span style="cursor:pointer;font-size:1.5rem;" onclick="togglePanel('prayer-panel')">✕</span></div>
+        <label>Προσευχὴ</label>
+        <select id="prayer-select" onchange="updatePrayer()">
+            </select>
+        
+        <hr style="border: 0; border-top: 1px solid rgba(212,175,55,0.2); margin: 20px 0;">
+        
+        <label>Προσθήκη Νέας Προσευχῆς</label>
+        <input type="text" id="new-prayer-input" placeholder="Γράψτε τὴν προσευχὴ ἐδῶ...">
+        <button class="add-btn" onclick="addNewPrayer()">ΠΡΟΣΘΗΚΗ</button>
+        <p style="font-size: 0.8rem; color: #888; margin-top: 15px; text-align: center;">Σύρετε (swipe) πάνω στην προσευχή στην κύρια οθόνη για γρήγορη αλλαγή.</p>
+    </div>
+
     <script>
+        // Δεδομένα και Αποθήκευση
         let count = parseInt(localStorage.getItem('count')) || 0;
         let total = parseInt(localStorage.getItem('total')) || 0;
         let cycles = parseInt(localStorage.getItem('cycles')) || 0;
-        let target = parseInt(localStorage.getItem('target')) || 33;
+        let target = localStorage.getItem('target') || "33";
         
-        const prayers = ["Κύριε Ἰησοῦ Χριστέ, ἐλέησόν με", "Ὑπεραγία Θεοτόκε, σῶσον ἡμᾶς"];
+        const defaultPrayers = [
+            "Κύριε Ἰησοῦ Χριστέ, ἐλέησόν με",
+            "Ὑπεραγία Θεοτόκε, σῶσον ἡμᾶς",
+            "Ἅγιε/α ..., πρέσβευε ὑπὲρ ἐμοῦ"
+        ];
+        let customPrayers = JSON.parse(localStorage.getItem('customPrayers')) || defaultPrayers;
+        let currentPrayerIdx = parseInt(localStorage.getItem('currentPrayerIdx')) || 0;
+
         let isPaused = true, startTime = null, elapsedAtPause = 0, timerInterval;
+
+        // SWIPE LOGIC
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const prayerArea = document.getElementById('prayer-area');
+        const prayerText = document.getElementById('prayer-text');
+
+        prayerArea.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: false});
+
+        prayerArea.addEventListener('touchmove', e => {
+            e.preventDefault(); // Εμποδίζει το scroll κατά το swipe
+        }, {passive: false});
+
+        prayerArea.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, {passive: false});
+
+        function handleSwipe() {
+            const threshold = 50;
+            if (touchStartX - touchEndX > threshold) {
+                // Swipe Left -> Επόμενη
+                currentPrayerIdx = (currentPrayerIdx + 1) % customPrayers.length;
+                navigator.vibrate(25);
+                animatePrayerChange('left');
+            } else if (touchEndX - touchStartX > threshold) {
+                // Swipe Right -> Προηγούμενη
+                currentPrayerIdx = (currentPrayerIdx - 1 + customPrayers.length) % customPrayers.length;
+                navigator.vibrate(25);
+                animatePrayerChange('right');
+            }
+        }
+
+        function animatePrayerChange(dir) {
+            prayerText.style.opacity = "0";
+            prayerText.style.transform = dir === 'left' ? "translateX(-20px)" : "translateX(20px)";
+            
+            setTimeout(() => {
+                save();
+                updateUI();
+                populatePrayerSelect();
+                prayerText.style.transform = dir === 'left' ? "translateX(20px)" : "translateX(-20px)";
+                setTimeout(() => {
+                    prayerText.style.opacity = "1";
+                    prayerText.style.transform = "translateX(0)";
+                }, 50);
+            }, 200);
+        }
 
         function save() {
             localStorage.setItem('count', count);
             localStorage.setItem('total', total);
             localStorage.setItem('cycles', cycles);
             localStorage.setItem('target', target);
+            localStorage.setItem('customPrayers', JSON.stringify(customPrayers));
+            localStorage.setItem('currentPrayerIdx', currentPrayerIdx);
         }
 
         function countBead() {
             if(isPaused) startTimer();
             count++; total++;
-            if(count >= target) {
-                cycles++; count = 0;
-                navigator.vibrate([200, 100, 200]);
-            } else {
-                navigator.vibrate(40);
-            }
+            if(target !== "free") {
+                let t = parseInt(target);
+                if(count >= t) { cycles++; count = 0; navigator.vibrate([200, 100, 200]); }
+                else { navigator.vibrate(40); }
+            } else { navigator.vibrate(40); }
             save(); updateUI();
         }
 
         function updateUI() {
-            document.getElementById('current-count').innerText = target - count;
+            const display = document.getElementById('current-count');
+            const cyclesDiv = document.getElementById('cycles-container');
+            if(target === "free") {
+                display.innerText = count;
+                cyclesDiv.style.visibility = 'hidden';
+            } else {
+                display.innerText = parseInt(target) - count;
+                cyclesDiv.style.visibility = 'visible';
+                document.getElementById('cycles').innerText = cycles;
+            }
             document.getElementById('total').innerText = total;
-            document.getElementById('cycles').innerText = cycles;
+            prayerText.innerText = customPrayers[currentPrayerIdx];
         }
 
         function startTimer() {
             if(!isPaused) return; 
-            isPaused = false;
-            startTime = Date.now();
+            isPaused = false; startTime = Date.now();
+            document.getElementById('timer-toggle').innerText = "⏸";
             timerInterval = setInterval(() => {
                 let ms = elapsedAtPause + (Date.now() - startTime);
                 let s = Math.floor(ms / 1000);
@@ -145,40 +248,68 @@
             }, 1000);
         }
 
-        /* 🔥 ΖΗΤΗΘΕΙΣΑ ΣΥΝΑΡΤΗΣΗ — ΧΩΡΙΣ ΕΡΩΤΗΣΗ, ΧΩΡΙΣ ΑΛΛΑΓΗ TARGET */
+        function toggleTimer() {
+            if(isPaused) startTimer();
+            else {
+                isPaused = true; elapsedAtPause += (Date.now() - startTime);
+                clearInterval(timerInterval);
+                document.getElementById('timer-toggle').innerText = "▶";
+            }
+        }
+
         function resetAll() {
-            count = 0;
-            total = 0;
-            cycles = 0;
-            elapsedAtPause = 0;
+            if(!confirm("Εἶστε σίγουροι ὅτι θέλετε νὰ μηδενίσετε τὰ πάντα;")) return;
+            count = 0; total = 0; cycles = 0; elapsedAtPause = 0;
             if(timerInterval) clearInterval(timerInterval);
             isPaused = true;
             document.getElementById('session-timer').innerText = "00:00:00";
-            save();
-            updateUI();
+            document.getElementById('timer-toggle').innerText = "▶";
+            save(); updateUI();
         }
 
         function updateSettings() {
             const s = document.getElementById('knot-select'), ci = document.getElementById('custom-input');
-            if(s.value === 'custom') { 
-                ci.style.display = 'block'; 
-                target = parseInt(ci.value) || 33; 
-            }
-            else { 
-                ci.style.display = 'none'; 
-                target = parseInt(s.value); 
-            }
+            if(s.value === 'custom') { ci.style.display = 'block'; target = ci.value || "33"; }
+            else if(s.value === 'free') { ci.style.display = 'none'; target = "free"; }
+            else { ci.style.display = 'none'; target = s.value; }
             count = 0; save(); updateUI();
         }
 
-        function setDim(show) { 
-            document.getElementById('dim-overlay').style.display = show ? 'block' : 'none'; 
+        function populatePrayerSelect() {
+            const select = document.getElementById('prayer-select');
+            select.innerHTML = "";
+            customPrayers.forEach((p, index) => {
+                let opt = document.createElement('option');
+                opt.value = index;
+                opt.innerText = p;
+                if(index === currentPrayerIdx) opt.selected = true;
+                select.appendChild(opt);
+            });
         }
 
+        function updatePrayer() {
+            currentPrayerIdx = parseInt(document.getElementById('prayer-select').value);
+            save(); updateUI();
+        }
+
+        function addNewPrayer() {
+            const input = document.getElementById('new-prayer-input');
+            if(input.value.trim() !== "") {
+                customPrayers.push(input.value.trim());
+                input.value = "";
+                populatePrayerSelect();
+                save();
+                alert("Ἡ προσευχὴ προστέθηκε!");
+            }
+        }
+
+        function setDim(show) { document.getElementById('dim-overlay').style.display = show ? 'block' : 'none'; }
         document.getElementById('dim-overlay').onclick = () => setDim(false);
 
         window.onload = () => {
-            document.getElementById('prayer-text').innerHTML = prayers[0];
+            populatePrayerSelect();
+            document.getElementById('knot-select').value = target;
+            if(target === "custom") document.getElementById('custom-input').style.display = 'block';
             updateUI();
             
             const splash = document.getElementById('splash-screen');
