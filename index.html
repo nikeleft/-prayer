@@ -144,6 +144,9 @@
 
         let isPaused = true, startTime = null, elapsedAtPause = 0, timerInterval;
         let touchStartX = 0, touchStartY = 0;
+        
+        // Timer για την αυτόματη παύση
+        let inactivityTimer = null;
 
         const prayerTextElem = document.getElementById('prayer-text');
         const dimOverlay = document.getElementById('dim-overlay');
@@ -174,19 +177,28 @@
             localStorage.setItem('currentPrayerIdx', currentPrayerIdx);
         }
 
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            if (!isPaused) {
+                inactivityTimer = setTimeout(() => {
+                    pauseTimer(); // Παύση μετά από 1 λεπτό αδράνειας
+                }, 60000); 
+            }
+        }
+
         function countBead() {
             if(isPaused) startTimer();
+            resetInactivityTimer(); // Μηδενισμός του λεπτού κάθε φορά που πατάτε κόμπο
+
             count++; total++;
             
             if(target !== "free") {
                 if(count >= parseInt(target)) {
                     cycles++; count = 0;
-                    // ΚΛΙΜΑΚΩΤΗ ΔΟΝΗΣΗ: x φορές όσοι οι κύκλοι
                     if(vibrationMode !== "none") {
                         let pattern = [];
                         for(let i = 0; i < cycles; i++) {
-                            pattern.push(300); // διάρκεια δόνησης
-                            pattern.push(200); // παύση
+                            pattern.push(300); pattern.push(200);
                         }
                         navigator.vibrate(pattern);
                     }
@@ -220,32 +232,32 @@
                 let s = Math.floor(ms / 1000);
                 document.getElementById('session-timer').innerText = new Date(s * 1000).toISOString().substr(11, 8);
             }, 1000);
+            resetInactivityTimer();
+        }
+
+        function pauseTimer() {
+            if(isPaused) return;
+            isPaused = true; 
+            elapsedAtPause += (Date.now() - startTime); 
+            clearInterval(timerInterval); 
+            clearTimeout(inactivityTimer);
+            document.getElementById('timer-toggle').innerText = "▶"; 
         }
 
         function toggleTimer() {
             if(isPaused) startTimer();
-            else { 
-                isPaused = true; 
-                elapsedAtPause += (Date.now() - startTime); 
-                clearInterval(timerInterval); 
-                document.getElementById('timer-toggle').innerText = "▶"; 
-            }
+            else pauseTimer();
         }
 
         function resetAll() { 
             if(confirm("Θέλετε να μηδενίσετε τον κανόνα και τον χρόνο;")) { 
-                count = 0; 
-                total = 0; 
-                cycles = 0; 
-                // ΜΗΔΕΝΙΣΜΟΣ ΧΡΟΝΟΥ
-                isPaused = true;
-                elapsedAtPause = 0;
+                count = 0; total = 0; cycles = 0;
+                isPaused = true; elapsedAtPause = 0;
                 clearInterval(timerInterval);
+                clearTimeout(inactivityTimer);
                 document.getElementById('session-timer').innerText = "00:00:00";
                 document.getElementById('timer-toggle').innerText = "▶";
-                
-                save(); 
-                updateUI(); 
+                save(); updateUI(); 
             } 
         }
 
@@ -295,9 +307,7 @@
             if (Math.abs(diff) > 50) {
                 const direction = diff > 0 ? 1 : -1;
                 currentPrayerIdx = (currentPrayerIdx + direction + customPrayers.length) % customPrayers.length;
-                save();
-                animatePrayerChange(direction);
-                populatePrayerSelect();
+                save(); animatePrayerChange(direction); populatePrayerSelect();
             }
         });
 
