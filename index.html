@@ -27,7 +27,7 @@
 
         #prayer-area { 
             width: 100%; text-align: center; padding-top: 40px; flex-shrink: 0; min-height: 140px; 
-            touch-action: none; cursor: pointer; z-index: 10;
+            touch-action: auto; cursor: pointer; z-index: 10;
         }
         #prayer-text { 
             font-size: 1.6rem; line-height: 1.4; min-height: 5rem; display: flex; 
@@ -132,7 +132,7 @@
     <script>
         window.stop();
 
-        // 1. ΟΙ 3 ΠΡΟΣΕΥΧΕΣ ΣΟΥ
+        // ΕΔΩ ΕΙΝΑΙ ΟΙ 3 ΠΡΟΣΕΥΧΕΣ ΣΟΥ - ΕΙΝΑΙ ΠΛΕΟΝ ΚΑΙ ΠΡΟΚΑΘΟΡΙΣΜΕΝΕΣ
         const myPrayers = [
             "Κύριε Ἰησοῦ Χριστέ, Υἱὲ τοῦ Θεοῦ, ἐλέησόν με τὸν ἁμαρτωλόν",
             "Ὑπεραγία Θεοτόκε, σῶσον ἡμᾶς",
@@ -146,7 +146,7 @@
         let vibrationMode = localStorage.getItem('vibrationMode') || "cycle";
         
         let storedPrayers = JSON.parse(localStorage.getItem('customPrayers'));
-        // Διασφάλιση ότι αν η μνήμη είναι κενή ή λανθασμένη, φορτώνονται οι δικές σου
+        // Αν οι αποθηκευμένες προσευχές είναι λιγότερες από 3, βάλε τις δικές σου
         let customPrayers = (storedPrayers && storedPrayers.length >= 3) ? storedPrayers : myPrayers;
         let currentPrayerIdx = parseInt(localStorage.getItem('currentPrayerIdx')) || 0;
         if (currentPrayerIdx >= customPrayers.length) currentPrayerIdx = 0;
@@ -158,14 +158,13 @@
         const prayerText = document.getElementById('prayer-text');
         const dimOverlay = document.getElementById('dim-overlay');
 
-        // SWIPE ΛΕΙΤΟΥΡΓΙΑ
+        // ΕΠΙΔΙΟΡΘΩΣΗ SWIPE
         prayerArea.addEventListener('touchstart', e => { 
             touchStartX = e.changedTouches[0].screenX; 
         }, {passive: true});
 
         prayerArea.addEventListener('touchend', e => { 
-            let touchEndX = e.changedTouches[0].screenX;
-            handleSwipe(touchEndX); 
+            handleSwipe(e.changedTouches[0].screenX); 
         }, {passive: true});
 
         dimOverlay.addEventListener('touchstart', e => { 
