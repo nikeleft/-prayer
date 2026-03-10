@@ -132,7 +132,6 @@
     <script>
         window.stop();
 
-        // Η ΝΕΑ ΣΥΝΤΟΜΗ ΠΡΟΣΕΥΧΗ
         const myPrayers = [
             "Κύριε Ἰησοῦ Χριστέ, ἐλέησόν με",
             "Ὑπεραγία Θεοτόκε, σῶσον ἡμᾶς",
@@ -148,9 +147,9 @@
         let storedPrayers = JSON.parse(localStorage.getItem('customPrayers'));
         let customPrayers = (storedPrayers && storedPrayers.length >= 1) ? storedPrayers : myPrayers;
         
-        // Αν η πρώτη προσευχή δεν είναι η νέα σύντομη, την επιβάλλουμε
-        if(customPrayers[0] !== myPrayers[0]) {
-            customPrayers = myPrayers;
+        // Επιβολή της νέας προσευχής αν είναι διαφορετική
+        if(customPrayers[0] !== "Κύριε Ἰησοῦ Χριστέ, ἐλέησόν με") {
+            customPrayers[0] = "Κύριε Ἰησοῦ Χριστέ, ἐλέησόν με";
         }
 
         let currentPrayerIdx = parseInt(localStorage.getItem('currentPrayerIdx')) || 0;
@@ -162,6 +161,25 @@
         const prayerArea = document.getElementById('prayer-area');
         const prayerText = document.getElementById('prayer-text');
         const dimOverlay = document.getElementById('dim-overlay');
+
+        // ΑΜΕΣΗ ΕΝΗΜΕΡΩΣΗ UI ΜΕ ΤΗΝ ΕΝΑΡΞΗ ΤΟΥ SCRIPT
+        function updateUI() {
+            const display = document.getElementById('current-count');
+            const cyclesDiv = document.getElementById('cycles-container');
+            if(target === "free") {
+                display.innerText = count;
+                cyclesDiv.style.visibility = 'hidden';
+            } else {
+                display.innerText = parseInt(target) - count;
+                cyclesDiv.style.visibility = 'visible';
+                document.getElementById('cycles').innerText = cycles;
+            }
+            document.getElementById('total').innerText = total;
+            prayerText.innerHTML = customPrayers[currentPrayerIdx].replace(/,/g, ',<br>');
+        }
+
+        // Τρέχουμε το UI αμέσως εδώ, πριν το onload
+        updateUI();
 
         prayerArea.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
         prayerArea.addEventListener('touchend', e => { handleSwipe(e.changedTouches[0].screenX); }, {passive: true});
@@ -224,22 +242,6 @@
                 } else if (vibrationMode === "all") navigator.vibrate(40);
             } else if (vibrationMode === "all") navigator.vibrate(40);
             save(); updateUI();
-        }
-
-        function updateUI() {
-            const display = document.getElementById('current-count');
-            const cyclesDiv = document.getElementById('cycles-container');
-            if(target === "free") {
-                display.innerText = count;
-                cyclesDiv.style.visibility = 'hidden';
-            } else {
-                display.innerText = parseInt(target) - count;
-                cyclesDiv.style.visibility = 'visible';
-                document.getElementById('cycles').innerText = cycles;
-            }
-            document.getElementById('total').innerText = total;
-            // Εμφάνιση προσευχής
-            prayerText.innerHTML = customPrayers[currentPrayerIdx].replace(/,/g, ',<br>');
         }
 
         function startTimer() {
@@ -306,7 +308,7 @@
             populatePrayerSelect();
             document.getElementById('knot-select').value = target;
             document.getElementById('vibration-select').value = vibrationMode;
-            updateUI(); // Τρέχει αμέσως για να φανεί η προσευχή
+            updateUI(); // Ξανά για σιγουριά μετά το φόρτωμα των στοιχείων
         };
     </script>
 </body>
